@@ -8,8 +8,11 @@ import { ZiggyVue } from "../../vendor/tightenco/ziggy";
 import SimpleLayoutForLogin from "./Layouts/SimpleLayoutForLogin.vue";
 import ColumnsLayoutForDashboard from "./Layouts/ColumnsLayoutForDashboard.vue";
 import vuetify from "./vuetify";
+import { createPinia } from "pinia";
 
 const appName = import.meta.env.VITE_APP_NAME || "Laravel";
+
+const pinia = createPinia();
 
 createInertiaApp({
     title: (title) => `${title} - ${appName}`,
@@ -28,6 +31,7 @@ createInertiaApp({
     setup({ el, App, props, plugin }) {
         createApp({ render: () => h(App, props) })
             .use(vuetify)
+            .use(pinia)
             .use(plugin)
             .use(ZiggyVue)
             .mount(el);

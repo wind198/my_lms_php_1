@@ -23,6 +23,7 @@ import UserAvatarMenu from "@/Components/common/UserAvatarMenu.vue";
 import useCheckLinkActive from "@/hooks/useCheckLinkActive";
 import Banner from "@/Components/Banner.vue";
 import ConfirmDialog from "@/Components/ConfirmDialog.vue";
+import useConfirmDialogStore from "@/store/useConfirmDialog";
 
 const settingLinks = [
     {
@@ -69,6 +70,8 @@ const subListOpenState = ref<IExpansionPanelValue[]>([
     "human_management",
     ...(page.url.includes("study") ? (["study"] as const) : []),
 ]);
+
+const confirmDialogStore = useConfirmDialogStore();
 </script>
 <template>
     <VResponsive class="rounded h-100">

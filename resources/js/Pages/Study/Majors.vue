@@ -1,5 +1,6 @@
 <script lang="ts">
 export default {
+    // @ts-expect-error
     layout: (h, page) =>
         h(ColumnsLayoutForDashboard, () => h(SettingsLayout, () => page)),
 };
@@ -14,15 +15,18 @@ import { cloneDeep, set } from "lodash-es";
 import { VDataTable } from "vuetify/components";
 import { AppLinkClasses } from "../../constants";
 
-import PageTitle from "@/Components/common/PageTitle.vue";
 import ServerTableHeadCell from "@/Components/common/ServerTableHeadCell.vue";
 import ServerTablePagination from "@/Components/common/ServerTablePagination.vue";
+import TableColumnConfigurationButton from "@/Components/common/TableColumnConfigurationButton.vue";
 import TableFilterToolbar from "@/Components/common/TableFilterToolbar.vue";
+import useColumnConfigurationForTable from "@/hooks/useColumnConfigurationForTable";
 import useServerTable from "@/hooks/useServerTable";
-import { usePage } from "@inertiajs/vue3";
 import dayjs from "dayjs";
+import ListPage from "../../Components/common/ListPage.vue";
 import { concatClasses, removeValueFromObject } from "../../helper";
 import type { IServerTableParams } from "../../types/common/server-table.type";
+import { router } from "@inertiajs/vue3";
+import { toRaw, toRef, toRefs, toValue, unref } from "vue";
 type IProps = {
     data: IUser[];
     params: IServerTableParams<IUser>;
@@ -30,20 +34,32 @@ type IProps = {
 
 const props = defineProps<IProps>();
 
-const headers = [
-    {
-        title: textMap.nouns.title,
-        value: "title",
-        sortable: true,
-        align: "left",
-    },
-    {
-        title: textMap.nouns.created_at,
-        value: "created_at",
-        sortable: true,
-        align: "left",
-    },
-];
+const { toggleVisibity, visibleHeaders, headerWithVisibility } =
+    useColumnConfigurationForTable({
+        headers: [
+            {
+                title: textMap.nouns.title,
+                value: "title",
+                sortable: true,
+                align: "start",
+            },
+            {
+                title: textMap.nouns.description,
+                value: "description",
+                sortable: true,
+                align: "start",
+            },
+            {
+                title: textMap.nouns.created_at,
+                value: "created_at",
+                sortable: true,
+                align: "start",
+            },
+        ],
+        intialShow: ["title", "description"],
+    });
+
+const { data, params } = toRefs(props);
 
 const {
     handleChangeFilter,
@@ -51,13 +67,13 @@ const {
     handleChangePage,
     handleChangePerPage,
 } = useServerTable({
-    data: props.data,
-    headers,
-    params: props.params as any,
+    data: data,
+    headers: visibleHeaders,
+    params: params as any,
 });
 
 const onChangeFilter = (v: any, keys: string[]) => {
-    let newFilters = cloneDeep(props.params.filters);
+    let newFilters = cloneDeep(params.value.filters ?? {});
 
     //  update filter value
     let formatedValue = v;
@@ -82,29 +98,39 @@ const onChangeFilter = (v: any, keys: string[]) => {
 };
 
 const createMajorUrl = window.route("study.majors.create");
+
+const onRowClick = (e: Event, { item }: { item: IUser }) => {
+    const showUrl = window.route("study.majors.show", {
+        major: item.id,
+    });
+
+    router.get(showUrl);
+};
 </script>
 <template>
-    <div class="major-list">
-        <PageTitle
-            :title="textMap.nouns.list({ item: textMap.nouns.major })"
-            :createUrl="createMajorUrl"
-        >
-        </PageTitle>
+    <ListPage :create-url="createMajorUrl">
         <VDataTable
+            @click:row="onRowClick"
             density="compact"
-            :items="props.data"
-            :headers="headers as any"
+            :items="data"
+            :headers="visibleHeaders as any"
             :hide-default-footer="true"
-            :items-per-page="props.params.per_page"
+            :items-per-page="params.per_page"
         >
             <template v-slot:top="{}">
                 <TableFilterToolbar
                     :filters="{
-                        q: props.params.filters.q,
-                        created_at: props.params.filters.created_at ?? {},
+                        q: params.filters?.q,
+                        created_at: params.filters?.created_at ?? {},
                     }"
                     @update-filter="onChangeFilter($event.value, $event.keys)"
                 >
+                    <template v-slot:append="">
+                        <TableColumnConfigurationButton
+                            @toggle-column="toggleVisibity($event)"
+                            :headers="headerWithVisibility"
+                        ></TableColumnConfigurationButton>
+                    </template>
                 </TableFilterToolbar>
             </template>
             <template v-slot:headers="{ columns }">
@@ -113,8 +139,8 @@ const createMajorUrl = window.route("study.majors.create");
                         <ServerTableHeadCell
                             :value="column.key"
                             :sortable="column.sortable"
-                            :current-order="props.params.order"
-                            :is-active="props.params.order_by === column.key"
+                            :current-order="params.order"
+                            :is-active="params.order_by === column.key"
                             :align="column.align"
                             :title="column.title"
                             @click="handleChangeOrder($event)"
@@ -124,28 +150,14 @@ const createMajorUrl = window.route("study.majors.create");
             <template v-slot:item.created_at="{ value }">
                 {{ datetimeFormater.standard(value) }}
             </template>
-            <template v-slot:item.email="{ value }">
-                <a
-                    :class="concatClasses(AppLinkClasses)"
-                    :href="`mailto:${value}`"
-                    >{{ value }}</a
-                >
-            </template>
-            <template v-slot:item.phone="{ value }">
-                <a
-                    :class="concatClasses(AppLinkClasses)"
-                    :href="`tel:${value}`"
-                    >{{ value }}</a
-                >
-            </template>
         </VDataTable>
         <ServerTablePagination
             @update-page="handleChangePage"
             @update-per-page="handleChangePerPage"
-            :length="props.params.last_page"
-            :page="props.params.current_page"
-            :per-page="props.params.per_page"
-            :total-items="props.params.total"
+            :length="params.last_page"
+            :page="params.current_page"
+            :per-page="params.per_page"
+            :total-items="params.total"
         ></ServerTablePagination>
-    </div>
+    </ListPage>
 </template>

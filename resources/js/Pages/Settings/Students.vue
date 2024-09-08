@@ -12,7 +12,7 @@ import { textMap } from "@/constants/text";
 import { datetimeFormater } from "@/helper/formatter";
 import type { IUser } from "@/types/entities/user.type";
 import { cloneDeep, set } from "lodash-es";
-import { VDataTable } from "vuetify/components";
+import { VCheckboxBtn, VDataTable } from "vuetify/components";
 import { AppLinkClasses } from "../../constants";
 
 import ServerTableHeadCell from "@/Components/common/ServerTableHeadCell.vue";
@@ -26,6 +26,9 @@ import ListPage from "../../Components/common/ListPage.vue";
 import { concatClasses, removeValueFromObject } from "../../helper";
 import type { IServerTableParams } from "../../types/common/server-table.type";
 import { router } from "@inertiajs/vue3";
+import { ref, toRaw, toRef, toRefs, toValue, unref } from "vue";
+import TableBulkActionToolbar from "../../Components/common/TableBulkActionToolbar.vue";
+import useResource from "../../hooks/useResource";
 type IProps = {
     data: IUser[];
     params: IServerTableParams<IUser>;
@@ -64,19 +67,21 @@ const { toggleVisibity, visibleHeaders, headerWithVisibility } =
         intialShow: ["full_name", "email", "phone"],
     });
 
+const { data, params } = toRefs(props);
+
 const {
     handleChangeFilter,
     handleChangeOrder,
     handleChangePage,
     handleChangePerPage,
 } = useServerTable({
-    data: props.data,
-    headers: visibleHeaders.value,
-    params: props.params as any,
+    data: data,
+    headers: visibleHeaders,
+    params: params as any,
 });
 
 const onChangeFilter = (v: any, keys: string[]) => {
-    let newFilters = cloneDeep(props.params.filters ?? {});
+    let newFilters = cloneDeep(params.value.filters ?? {});
 
     //  update filter value
     let formatedValue = v;
@@ -109,22 +114,30 @@ const onRowClick = (e: Event, { item }: { item: IUser }) => {
 
     router.get(showUrl);
 };
+
+const selected = ref<number[]>([]);
+
+const {resourcePlural} = useResource();
+ 
+const deleteUrl=window.route(`settings.${resourcePlural}.destroy-many`);
 </script>
 <template>
     <ListPage :create-url="createStudentUrl">
         <VDataTable
             @click:row="onRowClick"
             density="compact"
-            :items="props.data"
+            :items="data"
             :headers="visibleHeaders as any"
             :hide-default-footer="true"
-            :items-per-page="props.params.per_page"
+            :items-per-page="params.per_page"
+            show-select
+            v-model="selected"
         >
             <template v-slot:top="{}">
                 <TableFilterToolbar
                     :filters="{
-                        q: props.params.filters?.q,
-                        created_at: props.params.filters?.created_at ?? {},
+                        q: params.filters?.q,
+                        created_at: params.filters?.created_at ?? {},
                     }"
                     @update-filter="onChangeFilter($event.value, $event.keys)"
                 >
@@ -135,15 +148,20 @@ const onRowClick = (e: Event, { item }: { item: IUser }) => {
                         ></TableColumnConfigurationButton>
                     </template>
                 </TableFilterToolbar>
+                <TableBulkActionToolbar :delete-url="deleteUrl" :selected="selected"></TableBulkActionToolbar>
             </template>
-            <template v-slot:headers="{ columns }">
+            <template
+                v-slot:'header.data-table-select'="{
+                    columns,
+                }"
+            >
                 <tr>
                     <template v-for="column in columns" :key="column.key">
                         <ServerTableHeadCell
                             :value="column.key"
                             :sortable="column.sortable"
-                            :current-order="props.params.order"
-                            :is-active="props.params.order_by === column.key"
+                            :current-order="params.order"
+                            :is-active="params.order_by === column.key"
                             :align="column.align"
                             :title="column.title"
                             @click="handleChangeOrder($event)"
@@ -171,16 +189,10 @@ const onRowClick = (e: Event, { item }: { item: IUser }) => {
         <ServerTablePagination
             @update-page="handleChangePage"
             @update-per-page="handleChangePerPage"
-            :length="props.params.last_page"
-            :page="props.params.current_page"
-            :per-page="props.params.per_page"
-            :total-items="props.params.total"
+            :length="params.last_page"
+            :page="params.current_page"
+            :per-page="params.per_page"
+            :total-items="params.total"
         ></ServerTablePagination>
     </ListPage>
 </template>
-
-<style scoped>
-.date-selector {
-    min-width: 240px;
-}
-</style>

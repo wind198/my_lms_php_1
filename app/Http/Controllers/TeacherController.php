@@ -9,6 +9,7 @@ use App\Traits\HandlesPagination;
 use Hash;
 use Inertia\Inertia;
 use Illuminate\Http\Request;
+use Log;
 use Session;
 
 class TeacherController extends Controller
@@ -145,6 +146,8 @@ class TeacherController extends Controller
             $teacher->delete();
             return redirect()->route('settings.teachers')->with('message', ["content" => 'Teacher deleted successfully.', "type" => "success"]);
         } catch (\Exception $e) {
+            // Log the exception for debugging purposes
+            Log::error('Failed to delete the major: ' . $e->getMessage(), ['exception' => $e]);
             return redirect()->route('settings.teachers')->with('message', ["content" => 'Failed to delete the teacher.', "type" => "error"]);
         }
 

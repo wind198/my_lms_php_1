@@ -31,6 +31,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::patch('/settings/students/{student}/update', [StudentController::class, 'update'])->name('settings.students.update');
         Route::get('/settings/students/{student}/edit', [StudentController::class, 'edit'])->name('settings.students.edit');
         Route::delete('/settings/students/{student}/destroy', [StudentController::class, 'destroy'])->name('settings.students.destroy');
+        Route::delete('/settings/students/destroy-many', [StudentController::class, 'destroyMany'])->name('settings.students.destroy-many');
         Route::get('/settings/students/{student}', [StudentController::class, 'show'])->name('settings.students.show');
     });
 
@@ -43,8 +44,15 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::delete('/settings/teachers/{teacher}/destroy', [TeacherController::class, 'destroy'])->name('settings.teachers.destroy');
         Route::get('/settings/teachers/{teacher}', [TeacherController::class, 'show'])->name('settings.teachers.show');
     });
-    Route::get('/study/majors', [MajorController::class, 'index'])->name('study.majors');
-    Route::get('/settings/majors/create', [MajorController::class, 'create'])->name('study.majors.create');
+    Route::middleware("set.sharedProps:resource=major;primaryField=title")->group(function () {
+        Route::get('/study/majors', [MajorController::class, 'index'])->name('study.majors');
+        Route::get('/study/majors/create', [MajorController::class, 'create'])->name('study.majors.create');
+        Route::post('/study/majors/store', [MajorController::class, 'store'])->name('study.majors.store');
+        Route::patch('/study/majors/{major}/update', [MajorController::class, 'update'])->name('study.majors.update');
+        Route::get('/study/majors/{major}/edit', [MajorController::class, 'edit'])->name('study.majors.edit');
+        Route::delete('/study/majors/{major}/destroy', [MajorController::class, 'destroy'])->name('study.majors.destroy');
+        Route::get('/study/majors/{major}', [MajorController::class, 'show'])->name('study.majors.show');
+    });
 });
 
 require __DIR__ . '/auth.php';

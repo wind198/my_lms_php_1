@@ -8,6 +8,7 @@ use App\Models\User;
 use App\Traits\HandlesPagination;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use Log;
 use Session;
 
 class StudentController extends Controller
@@ -142,7 +143,34 @@ class StudentController extends Controller
             $student->delete();
             return redirect()->route('settings.students')->with('success', 'Student deleted successfully.');
         } catch (\Exception $e) {
+            // Log the exception for debugging purposes
+            Log::error('Failed to delete the major: ' . $e->getMessage(), ['exception' => $e]);
             return redirect()->route('settings.students')->with('error', 'Failed to delete the student.');
+        }
+    }
+
+    public function destroyMany(Request $request)
+    {
+        // Retrieve the array of student IDs from the request
+        $studentIds = $request->input('student_ids', []);
+
+        // Ensure we have an array of student IDs
+        if (empty($studentIds) || !is_array($studentIds)) {
+            return redirect()->route('settings.students')
+                ->with('message', ['content' => 'No students selected for deletion.', 'type' => 'error']);
+        }
+
+        try {
+            // Perform a batch deletion using the student IDs
+            User::whereIn('id', $studentIds)
+                ->where('user_type', User::$STUDENT_ROLE) // Ensure only student records are deleted
+                ->delete();
+
+            return redirect()->route('settings.students')
+                ->with('message', ['content' => 'Selected students deleted successfully.', 'type' => 'success']);
+        } catch (\Exception $e) {
+            return redirect()->route('settings.students')
+                ->with('message', ['content' => 'Failed to delete selected students.', 'type' => 'error']);
         }
     }
 

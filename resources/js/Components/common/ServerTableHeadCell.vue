@@ -30,7 +30,7 @@ const handleClickHeadCell = () => {
             [
                 `head-cell-${props.value}`,
                 `text-${props.align ?? 'left'}`,
-                props.sortable ? 'cursor-pointer' : '',
+                props.sortable ? 'cursor-pointer' : 'text-grey',
             ].join(' ')
         "
     >

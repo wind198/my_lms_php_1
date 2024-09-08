@@ -98,6 +98,7 @@ export const textMap = {
         notCorrect: translate`${"item"} không đúng`,
     },
     verbs: {
+        selected: "Đã chọn",
         view: "Xem",
         viewDetail: "Xem chi tiết",
         setting: "Cài đặt",
@@ -116,7 +117,6 @@ export const textMap = {
         search: "Tìm kiếm",
         save: "Lưu",
         edit: "Chỉnh sửa",
-        view: "Xem",
         enroll: "Ghi danh",
         complete: "Hoàn thành",
         start: "Bắt đầu",

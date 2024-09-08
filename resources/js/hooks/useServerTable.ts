@@ -7,21 +7,30 @@ import { cloneDeep } from "lodash-es";
 import { removeValueFromObject } from "../helper";
 import { stringify } from "qs";
 import { DefaultTablePerPage } from "../constants";
+import { Ref } from "vue";
 
-type IProps<T> = {
-    data: T[];
-    params: IServerTableParams<T>;
-    headers: any[];
-};
+// type IProps<T> = {
+//     data: T[];
+//     params: IServerTableParams<T>;
+//     headers: any[];
+// };
 
-export default function useServerTable(props: IProps<IEntity>) {
+export default function useServerTable<T>({
+    data,
+    headers,
+    params,
+}: {
+    data: Ref<T[]>;
+    params: Ref<IServerTableParams<T>>;
+    headers: Ref<any[]>;
+}) {
     const handleChangeOrder = (key: string) => {
-        const matchColumn = props.headers.find((i) => i.value === key);
+        const matchColumn = headers.value.find((i) => i.value === key);
         if (!matchColumn?.sortable) {
             return;
         }
         const urlParams = new URLSearchParams(window.location.search);
-        const newOrder = props.params.order === "desc" ? "asc" : "desc";
+        const newOrder = params.value.order === "desc" ? "asc" : "desc";
 
         if (key === "created_at" && newOrder === "desc") {
             urlParams.delete("order");
@@ -31,11 +40,12 @@ export default function useServerTable(props: IProps<IEntity>) {
             urlParams.set("order", newOrder);
         }
 
+        params.value.order = newOrder;
+        params.value.order_by = key as keyof T;
+
         const data = Object.fromEntries(urlParams.entries());
 
-        router.visit(window.location.pathname, {
-            data,
-        });
+        router.get(window.location.pathname, data, { preserveState: true });
     };
 
     const handleChangePage = (v: number) => {
@@ -48,9 +58,7 @@ export default function useServerTable(props: IProps<IEntity>) {
 
         const data = Object.fromEntries(urlParams.entries());
 
-        router.visit(window.location.pathname, {
-            data,
-        });
+        router.get(window.location.pathname, data, { preserveState: true });
     };
     const handleChangePerPage = (v: number) => {
         const urlParams = new URLSearchParams(window.location.search);
@@ -62,9 +70,7 @@ export default function useServerTable(props: IProps<IEntity>) {
 
         const data = Object.fromEntries(urlParams.entries());
 
-        router.visit(window.location.pathname, {
-            data,
-        });
+        router.get(window.location.pathname, data, { preserveState: true });
     };
 
     const handleChangeFilter = (newFilters: Record<string, any>) => {
