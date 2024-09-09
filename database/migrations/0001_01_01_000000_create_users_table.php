@@ -32,6 +32,7 @@ return new class extends Migration {
 
             ]);
             $table->enum('education_background', [User::$EDUCATION_HIGHSCHOOL, User::$EDUCATION_BACHELOR, User::$EDUCATION_MASTER]);
+            $table->softDeletes();
         });
 
         Schema::create('password_reset_tokens', function (Blueprint $table) {

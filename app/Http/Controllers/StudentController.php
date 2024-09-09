@@ -6,6 +6,7 @@ use App\Http\Requests\StoreStudentRequest;
 use App\Http\Requests\UpdateStudentRequest;
 use App\Models\User;
 use App\Traits\HandlesPagination;
+use DefineRoutesOnController;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Log;
@@ -13,8 +14,12 @@ use Session;
 
 class StudentController extends Controller
 {
-    use HandlesPagination;
+    use HandlesPagination, DefineRoutesOnController;
 
+    public function __construct()
+    {
+        $this->defineRoutes('settings.students');
+    }
     /**
      * Display a listing of the resource.
      */
@@ -87,7 +92,7 @@ class StudentController extends Controller
 
         Session::flash('message', ["content" => "Student created successfully.", "type" => "success"]);
 
-        return redirect()->route('settings.students');
+        return redirect()->route($this->INDEX_ROUTE);
 
     }
 
@@ -125,7 +130,7 @@ class StudentController extends Controller
         Session::flash('message', ["content" => "Student details updated successfully.", "type" => "success"]);
 
         // Redirect to the student listing with a success message
-        return redirect()->route('settings.students.show', ["student" => $student->getKey()]);
+        return redirect()->route($this->SHOW_ROUTE, ["student" => $student->getKey()]);
     }
 
     /**
@@ -135,41 +140,41 @@ class StudentController extends Controller
     {
         // Ensure the user is actually a student
         if ($student->user_type !== User::$STUDENT_ROLE) {
-            return redirect()->route('settings.students')->with('error', 'This user is not a student.');
+            return redirect()->route($this->INDEX_ROUTE)->with('error', 'This user is not a student.');
         }
 
         // Attempt to delete the student
         try {
             $student->delete();
-            return redirect()->route('settings.students')->with('success', 'Student deleted successfully.');
+            return redirect()->route($this->INDEX_ROUTE)->with('success', 'Student deleted successfully.');
         } catch (\Exception $e) {
             // Log the exception for debugging purposes
             Log::error('Failed to delete the major: ' . $e->getMessage(), ['exception' => $e]);
-            return redirect()->route('settings.students')->with('error', 'Failed to delete the student.');
+            return redirect()->route($this->INDEX_ROUTE)->with('error', 'Failed to delete the student.');
         }
     }
 
     public function destroyMany(Request $request)
     {
         // Retrieve the array of student IDs from the request
-        $studentIds = $request->input('student_ids', []);
+        $ids = $request->input('ids', []);
 
         // Ensure we have an array of student IDs
-        if (empty($studentIds) || !is_array($studentIds)) {
-            return redirect()->route('settings.students')
+        if (empty($ids) || !is_array($ids)) {
+            return redirect()->route($this->INDEX_ROUTE)
                 ->with('message', ['content' => 'No students selected for deletion.', 'type' => 'error']);
         }
 
         try {
             // Perform a batch deletion using the student IDs
-            User::whereIn('id', $studentIds)
+            User::whereIn('id', $ids)
                 ->where('user_type', User::$STUDENT_ROLE) // Ensure only student records are deleted
                 ->delete();
 
-            return redirect()->route('settings.students')
+            return redirect()->route($this->INDEX_ROUTE)
                 ->with('message', ['content' => 'Selected students deleted successfully.', 'type' => 'success']);
         } catch (\Exception $e) {
-            return redirect()->route('settings.students')
+            return redirect()->route($this->INDEX_ROUTE)
                 ->with('message', ['content' => 'Failed to delete selected students.', 'type' => 'error']);
         }
     }

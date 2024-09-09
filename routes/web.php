@@ -25,13 +25,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
         return redirect("/settings/students");
     });
     Route::middleware("set.sharedProps:resource=student;primaryField=full_name")->group(function () {
-        Route::get('/settings/students', [StudentController::class, 'index'])->name('settings.students');
-        Route::get('/settings/students/create', [StudentController::class, 'create'])->name('settings.students.create');
-        Route::post('/settings/students/store', [StudentController::class, 'store'])->name('settings.students.store');
-        Route::patch('/settings/students/{student}/update', [StudentController::class, 'update'])->name('settings.students.update');
-        Route::get('/settings/students/{student}/edit', [StudentController::class, 'edit'])->name('settings.students.edit');
-        Route::delete('/settings/students/{student}/destroy', [StudentController::class, 'destroy'])->name('settings.students.destroy');
-        Route::delete('/settings/students/destroy-many', [StudentController::class, 'destroyMany'])->name('settings.students.destroy-many');
+        Route::get('/settings/students', [StudentController::class, 'index'])->name(StudentController::$INDEX_ROUTE);
+        Route::get('/settings/students/create', [StudentController::class, 'create'])->name(StudentController);
+        Route::post('/settings/students/store', [StudentController::class, 'store'])->name(StudentController::$STORE_ROUTE);
+        Route::patch('/settings/students/{student}/update', [StudentController::class, 'update'])->name(StudentController::$UPDATE_ROUTE);
+        Route::get('/settings/students/{student}/edit', [StudentController::class, 'edit'])->name(StudentController::$EDIT_ROUTE);
+        Route::delete('/settings/students/{student}/destroy', [StudentController::class, 'destroy'])->name(StudentController::$des);
+        Route::delete('/settings/students/destroy-many', [StudentController::class, 'destroyMany'])->name(StudentController::$EDIT_ROUTE);
         Route::get('/settings/students/{student}', [StudentController::class, 'show'])->name('settings.students.show');
     });
 
