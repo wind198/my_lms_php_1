@@ -16,6 +16,15 @@ class MajorController extends Controller
 {
     use HandlesPagination;
 
+    public const INDEX_ROUTE = 'study.majors';
+    public const CREATE_ROUTE = self::INDEX_ROUTE . '.create';
+    public const STORE_ROUTE = self::INDEX_ROUTE . '.store';
+    public const SHOW_ROUTE = self::INDEX_ROUTE . '.show';
+    public const EDIT_ROUTE = self::INDEX_ROUTE . '.edit';
+    public const UPDATE_ROUTE = self::INDEX_ROUTE . '.update';
+    public const DESTROY_ROUTE = self::INDEX_ROUTE . '.destroy';
+
+
     /**
      * Display a listing of the resource.
      */
@@ -79,11 +88,9 @@ class MajorController extends Controller
 
         $major = Major::create($validated);
 
-        $major->sendEmailVerificationNotification();
-
         Session::flash('message', ["content" => "Major created successfully.", "type" => "success"]);
 
-        return redirect()->route('study.majors');
+        return redirect()->route(self::INDEX_ROUTE);
 
     }
 
@@ -118,7 +125,7 @@ class MajorController extends Controller
         Session::flash('message', ["content" => "Major details updated successfully.", "type" => "success"]);
 
         // Redirect to the major listing with a success message
-        return redirect()->route('study.majors.show', ["major" => $major->getKey()]);
+        return redirect()->route(self::SHOW_ROUTE, ["major" => $major->getKey()]);
     }
     /**
      * Remove the specified resource from storage.
@@ -129,7 +136,7 @@ class MajorController extends Controller
             // Attempt to delete the major
             $major->delete();
 
-            return redirect()->route('study.majors')->with('message', [
+            return redirect()->route(self::INDEX_ROUTE)->with('message', [
                 "content" => 'Major deleted successfully.',
                 "type" => "success"
             ]);
@@ -137,7 +144,7 @@ class MajorController extends Controller
             // Log the exception for debugging purposes
             Log::error('Failed to delete the major: ' . $e->getMessage(), ['exception' => $e]);
 
-            return redirect()->route('study.majors')->with('message', [
+            return redirect()->route(self::INDEX_ROUTE)->with('message', [
                 "content" => 'Failed to delete the major. Please try again later.',
                 "type" => "error"
             ]);

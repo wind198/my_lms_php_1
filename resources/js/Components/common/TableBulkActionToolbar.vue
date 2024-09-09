@@ -34,10 +34,13 @@ const deleteConfirmMessage = computed(() =>
         action: [
             textMap.verbs.delete,
             props.selected.length,
-            textMap.nouns[resource],
+            textMap.nouns[resource].toLowerCase(),
         ].join(" "),
     })
 );
+
+const emit = defineEmits(["confirm-delete"]);
+
 const onClickDeleteUrl = () => {
     if (!props.deleteUrl) {
         return;
@@ -47,16 +50,20 @@ const onClickDeleteUrl = () => {
         content: deleteConfirmMessage.value,
         onConfirm() {
             router.delete(props.deleteUrl!);
+            emit("confirm-delete");
         },
     });
 };
 </script>
 <template>
-    <div v-if="selected.length" class="px-4 py-2 d-flex justify-between">
+    <div
+        v-if="selected.length"
+        class="px-4 py-2 d-flex align-center justify-space-between"
+    >
         <span>{{ selectionText }}</span>
         <div class="d-flex actions">
             <VBtn
-                flat
+                variant="flat"
                 color="error"
                 type="button"
                 v-if="deleteUrl"

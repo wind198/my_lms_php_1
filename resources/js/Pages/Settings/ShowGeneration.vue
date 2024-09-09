@@ -9,9 +9,6 @@ import ShowPage from "../../Components/common/ShowPage.vue";
 import SimpleShowLayout from "../../Components/common/SimpleShowLayout.vue";
 import { textMap } from "../../constants/text";
 import useCreatePage from "../../hooks/useCreatePage";
-import { Link, router } from "@inertiajs/vue3";
-import { computed } from "vue";
-import { AppLinkClasses } from "@/constants";
 
 const { resource, recordData, resourcePlural } = useCreatePage();
 
@@ -19,13 +16,7 @@ const editUrl = window.route(`settings.${resourcePlural}.edit`, {
     [resource]: recordData.id,
 });
 
-const textFieldsForShowUser = [
-    "full_name",
-    "email",
-    "phone",
-    "address",
-    "education_background",
-] as const;
+const textFieldsForShowUser = ["title", "description"] as const;
 
 type ITextField = (typeof textFieldsForShowUser)[number];
 
@@ -35,22 +26,8 @@ const getLabel = (i: ITextField) => {
 };
 
 const getValue = (i: ITextField) => {
-    if (i === "education_background") {
-        // @ts-expect-error
-        return textMap.nouns[recordData[i]];
-    }
-    // @ts-expect-error
     return recordData[i];
 };
-
-const generationUrl = computed(() => {
-    if (!recordData.generation?.id) {
-        return;
-    }
-    return window.route("settings.generations.show", {
-        generation: recordData.generation?.id,
-    });
-});
 </script>
 <template>
     <ShowPage :edit-url="editUrl">
@@ -62,16 +39,6 @@ const generationUrl = computed(() => {
 
                 <VListItemSubtitle> {{ getValue(i) }} </VListItemSubtitle>
             </VListItem>
-            <VListItem v-if="generationUrl">
-                <VListItemTitle>
-                    {{ textMap.nouns.generation }}
-                </VListItemTitle>
-                <VListItemSubtitle>
-                    <Link :class="[AppLinkClasses]":href="generationUrl">
-                        {{ recordData.generation?.title }}
-                    </Link>
-                </VListItemSubtitle></VListItem
-            >
         </SimpleShowLayout>
     </ShowPage>
 </template>

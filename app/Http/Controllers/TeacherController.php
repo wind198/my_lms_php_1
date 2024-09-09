@@ -16,6 +16,15 @@ class TeacherController extends Controller
 {
     use HandlesPagination;
 
+    public const INDEX_ROUTE = 'settings.teachers';
+    public const CREATE_ROUTE = self::INDEX_ROUTE . '.create';
+    public const STORE_ROUTE = self::INDEX_ROUTE . '.store';
+    public const SHOW_ROUTE = self::INDEX_ROUTE . '.show';
+    public const EDIT_ROUTE = self::INDEX_ROUTE . '.edit';
+    public const UPDATE_ROUTE = self::INDEX_ROUTE . '.update';
+    public const DESTROY_ROUTE = self::INDEX_ROUTE . '.destroy';
+    public const DESTROY_MANY_ROUTE = self::INDEX_ROUTE . '.destroy-many';
+
     /**
      * Display a listing of the resource.
      */
@@ -90,7 +99,7 @@ class TeacherController extends Controller
 
         Session::flash('message', ["content" => "Teacher created successfully.", "type" => "success"]);
 
-        return redirect()->route('settings.teachers');
+        return redirect()->route(self::INDEX_ROUTE);
 
     }
 
@@ -128,7 +137,7 @@ class TeacherController extends Controller
         Session::flash('message', ["content" => "Teacher details updated successfully.", "type" => "success"]);
 
         // Redirect to the teacher listing with a success message
-        return redirect()->route('settings.teachers.show', ["teacher" => $teacher->getKey()]);
+        return redirect()->route(self::SHOW_ROUTE, ["teacher" => $teacher->getKey()]);
     }
     /**
      * Remove the specified resource from storage.
@@ -138,18 +147,49 @@ class TeacherController extends Controller
 
         // Ensure the user is actually a teacher
         if ($teacher->user_type !== User::$TEACHER_ROLE) {
-            return redirect()->route('settings.teachers')->with('message', ["content" => 'This user is not a teacher.', "type" => "error"]);
+            return redirect()->route(self::INDEX_ROUTE)->with('message', ["content" => 'This user is not a teacher.', "type" => "error"]);
         }
 
         // Attempt to delete the teacher
         try {
             $teacher->delete();
-            return redirect()->route('settings.teachers')->with('message', ["content" => 'Teacher deleted successfully.', "type" => "success"]);
+            return redirect()->route(self::INDEX_ROUTE)->with('message', ["content" => 'Teacher deleted successfully.', "type" => "success"]);
         } catch (\Exception $e) {
             // Log the exception for debugging purposes
             Log::error('Failed to delete the major: ' . $e->getMessage(), ['exception' => $e]);
-            return redirect()->route('settings.teachers')->with('message', ["content" => 'Failed to delete the teacher.', "type" => "error"]);
+            return redirect()->route(self::INDEX_ROUTE)->with('message', ["content" => 'Failed to delete the teacher.', "type" => "error"]);
         }
 
+    }
+    public function destroyMany(Request $request)
+    {
+        // Retrieve the array of teacher IDs from the request
+        $ids = $request->input('ids', []);
+
+        // Ensure we have an array of teacher IDs
+        if (empty($ids) || !is_array($ids)) {
+            return redirect()->route(self::INDEX_ROUTE)
+                ->with('message', ['content' => 'No teachers selected for deletion.', 'type' => 'error']);
+        }
+
+        try {
+            // Perform a batch deletion using the teacher IDs
+            // Perform a batch deletion using the teacher IDs and get the count of deleted records
+            $deletedCount = User::whereIn('id', $ids)
+                ->where('user_type', User::$TEACHER_ROLE) // Ensure only teacher records are deleted
+                ->delete();
+
+            // Check if any teachers were actually deleted
+            if ($deletedCount > 0) {
+                return redirect()->route(self::INDEX_ROUTE)
+                    ->with('message', ['content' => "$deletedCount teachers deleted successfully.", 'type' => 'success']);
+            } else {
+                return redirect()->route(self::INDEX_ROUTE)
+                    ->with('message', ['content' => 'No teachers were deleted.', 'type' => 'error']);
+            }
+        } catch (\Exception $e) {
+            return redirect()->route(self::INDEX_ROUTE)
+                ->with('message', ['content' => 'Failed to delete selected teachers.', 'type' => 'error']);
+        }
     }
 }

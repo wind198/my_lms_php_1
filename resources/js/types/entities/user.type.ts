@@ -18,4 +18,5 @@ export type IUser = IEntity & {
     note?: string | null;
     user_type: IUserType;
     education_background: IEducationBackground;
+    generation_id?: number;
 };

@@ -6,15 +6,11 @@ import { VBtn, VCard, VDialog } from "vuetify/components";
 
 const confirmDialogStore = useConfirmDialogStore();
 
-const emit = defineEmits();
-
 const onClickConfirm = () => {
-    emit("accept-confirm-dialog");
     confirmDialogStore.onConfirm();
     confirmDialogStore.closeDialog();
 };
 const onClickCancel = () => {
-    emit("cancel-confirm-dialog");
     confirmDialogStore.closeDialog();
 };
 

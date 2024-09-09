@@ -1,8 +1,9 @@
 import { usePage } from "@inertiajs/vue3";
 import { ICreatePageProps } from "../types/create-page.type";
+import { IEntity } from "../types/entities/entity.type";
 
-export default function useCreatePage() {
-    const page = usePage<ICreatePageProps>();
+export default function useCreatePage<T extends IEntity>() {
+    const page = usePage<ICreatePageProps<T>>();
 
     const isEdit = !!page.props.recordData;
 

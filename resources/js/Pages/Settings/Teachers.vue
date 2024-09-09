@@ -17,7 +17,9 @@ import dayjs from "dayjs";
 import ListPage from "../../Components/common/ListPage.vue";
 import { concatClasses, removeValueFromObject } from "../../helper";
 import type { IServerTableParams } from "../../types/common/server-table.type";
-import { toRefs } from "vue";
+import { computed, ref, toRefs } from "vue";
+import useResource from "@/hooks/useResource";
+import TableBulkActionToolbar from "@/Components/common/TableBulkActionToolbar.vue";
 type IProps = {
     data: IUser[];
     params: IServerTableParams<IUser>;
@@ -102,16 +104,28 @@ const onRowClick = (e: Event, { item }: { item: IUser }) => {
 
     router.get(showUrl);
 };
+
+const selected = ref<number[]>([]);
+
+const { resourcePlural } = useResource();
+
+const deleteManyUrl = computed(() =>
+    window.route(`settings.${resourcePlural}.destroy-many`, {
+        ids: selected.value,
+    })
+);
 </script>
 <template>
     <ListPage :create-url="createTeacherUrl">
         <VDataTable
+            :show-select="true"
             @click:row="onRowClick"
             density="compact"
             :items="data"
             :headers="visibleHeaders as any"
             :hide-default-footer="true"
             :items-per-page="params.per_page"
+            v-model="selected"
         >
             <template v-slot:top="{}">
                 <TableFilterToolbar
@@ -128,8 +142,15 @@ const onRowClick = (e: Event, { item }: { item: IUser }) => {
                         ></TableColumnConfigurationButton>
                     </template>
                 </TableFilterToolbar>
+                <TableBulkActionToolbar
+                    @confirm-delete="selected = []"
+                    :delete-url="deleteManyUrl"
+                    :selected="selected"
+                ></TableBulkActionToolbar>
             </template>
-            <template v-slot:headers="{ columns }">
+            <template  v-slot:'header.data-table-select'="{
+                columns,
+            }">
                 <tr>
                     <template v-for="column in columns" :key="column.key">
                         <ServerTableHeadCell

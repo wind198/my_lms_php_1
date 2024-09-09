@@ -40,10 +40,25 @@ const { toggleVisibity, visibleHeaders, headerWithVisibility } =
     useColumnConfigurationForTable({
         headers: [
             {
-                title: textMap.nouns.fullName,
-                value: "full_name",
+                title: textMap.nouns.title,
+                value: "title",
                 sortable: true,
                 align: "start",
+            },
+            {
+                title: textMap.nouns.description,
+                value: "description",
+                sortable: true,
+                align: "start",
+            },
+            {
+                title: textMap.nouns.count
+                    .concat(" ")
+                    .concat(textMap.nouns.student),
+                value: "students_count",
+                sortable: true,
+                align: "end",
+                width: 160,
             },
             {
                 title: textMap.nouns.created_at,
@@ -51,20 +66,8 @@ const { toggleVisibity, visibleHeaders, headerWithVisibility } =
                 sortable: true,
                 align: "start",
             },
-            {
-                title: textMap.nouns.email,
-                value: "email",
-                sortable: true,
-                align: "start",
-            },
-            {
-                title: textMap.nouns.phone,
-                value: "phone",
-                sortable: true,
-                align: "start",
-            },
         ],
-        intialShow: ["full_name", "email", "phone"],
+        intialShow: ["title", "description", "students_count"],
     });
 
 const { data, params } = toRefs(props);
@@ -105,22 +108,15 @@ const onChangeFilter = (v: any, keys: string[]) => {
     handleChangeFilter(newFilters);
 };
 
-const createStudentUrl = window.route("settings.students.create");
+const createStudentUrl = window.route("settings.generations.create");
 
 const onRowClick = (e: Event, { item }: { item: IUser }) => {
-    const showUrl = window.route("settings.students.show", {
-        student: item.id,
+    const showUrl = window.route("settings.generations.show", {
+        generation: item.id,
     });
 
     router.get(showUrl);
 };
-
-const selected = ref<number[]>([]);
-
-const {resourcePlural} = useResource();
- 
-const deleteManyUrl=computed(() => window.route(`settings.${resourcePlural}.destroy-many`,{ids: selected.value }));
-
 </script>
 <template>
     <ListPage :create-url="createStudentUrl">
@@ -131,8 +127,6 @@ const deleteManyUrl=computed(() => window.route(`settings.${resourcePlural}.dest
             :headers="visibleHeaders as any"
             :hide-default-footer="true"
             :items-per-page="params.per_page"
-            show-select
-            v-model="selected"
         >
             <template v-slot:top="{}">
                 <TableFilterToolbar
@@ -149,13 +143,8 @@ const deleteManyUrl=computed(() => window.route(`settings.${resourcePlural}.dest
                         ></TableColumnConfigurationButton>
                     </template>
                 </TableFilterToolbar>
-                <TableBulkActionToolbar @confirm-delete="selected=[]" :delete-url="deleteManyUrl" :selected="selected"></TableBulkActionToolbar>
             </template>
-            <template
-                v-slot:'header.data-table-select'="{
-                    columns,
-                }"
-            >
+            <template v-slot:headers="{ columns }">
                 <tr>
                     <template v-for="column in columns" :key="column.key">
                         <ServerTableHeadCell

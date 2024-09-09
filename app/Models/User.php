@@ -5,6 +5,7 @@ namespace App\Models;
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
@@ -31,6 +32,7 @@ class User extends Authenticatable implements MustVerifyEmail
      * @var array<int, string>
      */
     protected $fillable = [
+        'generation_id',
         'first_name',
         'last_name',
         'full_name',
@@ -88,8 +90,16 @@ class User extends Authenticatable implements MustVerifyEmail
                     User::$EDUCATION_MASTER
                 ])
             ],
+            'generation_id' => [
+                'nullable', // Make this field optional if needed
+                'exists:generations,id' // Ensure the generation_id exists in the generations table
+            ],
         ];
     }
 
 
+    public function generation(): BelongsTo
+    {
+        return $this->belongsTo(Generation::class);
+    }
 }

@@ -5,6 +5,7 @@ namespace App\Http\Requests;
 use App\Helpers\ValidationHelper;
 use App\Models\User;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class UpdateStudentRequest extends FormRequest
 {
@@ -24,6 +25,10 @@ class UpdateStudentRequest extends FormRequest
     public function rules(): array
     {
         $rules = User::getRules();
+        $student = $this->route('student');
+
+        $rules['email'] =
+            ['required', 'string', 'email', 'max:' . User::$MAX_EMAIL_LENGTH, Rule::unique('users')->ignore($student->id),];
 
         // Make each field optional by modifying the rules
         return ValidationHelper::makeRulesOptional($rules);

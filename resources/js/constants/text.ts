@@ -25,7 +25,9 @@ export const textMap = {
         new: "Mới",
     },
     nouns: {
+        generation: "Khóa sinh viên",
         column: "Cột",
+        count: "Số lượng",
         note: "Ghi chú",
         row: "Hàng",
         major: "Chuyên ngành",

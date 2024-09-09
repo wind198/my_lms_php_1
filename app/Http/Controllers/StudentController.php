@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreStudentRequest;
 use App\Http\Requests\UpdateStudentRequest;
+use App\Models\Generation;
 use App\Models\User;
 use App\Traits\HandlesPagination;
 use Illuminate\Http\Request;
@@ -15,14 +16,14 @@ class StudentController extends Controller
 {
     use HandlesPagination;
 
-    public static $INDEX_ROUTE = 'settings.students';
-    public static $CREATE_ROUTE = self::$INDEX_ROUTE . '.create';
-    public static $STORE_ROUTE = self::$INDEX_ROUTE . '.store';
-    public static $SHOW_ROUTE = self::$INDEX_ROUTE . '.show';
-    public static $EDIT_ROUTE = self::$INDEX_ROUTE . '.edit';
-    public static $UPDATE_ROUTE = self::$INDEX_ROUTE . '.update';
-    public static $DESTROY_ROUTE = self::$INDEX_ROUTE . '.delete';
-    public static $DESTROY_MANY_ROUTE = self::$INDEX_ROUTE . '.delete';
+    public const INDEX_ROUTE = 'settings.students';
+    public const CREATE_ROUTE = self::INDEX_ROUTE . '.create';
+    public const STORE_ROUTE = self::INDEX_ROUTE . '.store';
+    public const SHOW_ROUTE = self::INDEX_ROUTE . '.show';
+    public const EDIT_ROUTE = self::INDEX_ROUTE . '.edit';
+    public const UPDATE_ROUTE = self::INDEX_ROUTE . '.update';
+    public const DESTROY_ROUTE = self::INDEX_ROUTE . '.destroy';
+    public const DESTROY_MANY_ROUTE = self::INDEX_ROUTE . '.destroy-many';
 
     /**
      * Display a listing of the resource.
@@ -76,8 +77,13 @@ class StudentController extends Controller
      * Show the form for creating a new resource.
      */
     public function create()
-    {
-        return Inertia::render('Settings/CreateUser', ['userType' => 'student']);
+    {// Retrieve the list of all generations
+        $generations = Generation::all(['id', 'title']); // Select only necessary fields (id and title)
+
+        // Render the Inertia component with userType and generations as props
+        return Inertia::render('Settings/CreateUser', [
+            'generations' => $generations
+        ]);
     }
 
     /**
@@ -96,7 +102,7 @@ class StudentController extends Controller
 
         Session::flash('message', ["content" => "Student created successfully.", "type" => "success"]);
 
-        return redirect()->route(self::$INDEX_ROUTE);
+        return redirect()->route(self::INDEX_ROUTE);
 
     }
 
@@ -105,6 +111,8 @@ class StudentController extends Controller
      */
     public function show(User $student)
     {
+        // Ensure 'generation' relationship is eager-loaded to include generation details if needed
+        $student->load('generation');
         return Inertia::render('Settings/ShowUser', ['recordData' => $student->toArray()]);
     }
 
@@ -112,8 +120,14 @@ class StudentController extends Controller
      * Show the form for editing the specified resource.
      */
     public function edit(User $student)
-    {
-        return Inertia::render('Settings/CreateUser', ['recordData' => $student->toArray()]);
+    {// Retrieve the list of all generations
+        $generations = Generation::all(['id', 'title']); // Select only necessary fields (id and title)
+
+        // Render the Inertia component with userType and generations as props
+        return Inertia::render('Settings/CreateUser', [
+            'recordData' => $student->toArray(),
+            'generations' => $generations
+        ]);
     }
 
     /**
@@ -127,6 +141,7 @@ class StudentController extends Controller
         // Update the student's details
         $student->update($validated);
 
+
         // If email was updated, send a new email verification notification
         if ($student->wasChanged('email')) {
             $student->sendEmailVerificationNotification();
@@ -134,7 +149,7 @@ class StudentController extends Controller
         Session::flash('message', ["content" => "Student details updated successfully.", "type" => "success"]);
 
         // Redirect to the student listing with a success message
-        return redirect()->route(self::$SHOW_ROUTE, ["student" => $student->getKey()]);
+        return redirect()->route(self::SHOW_ROUTE, ["student" => $student->getKey()]);
     }
 
     /**
@@ -144,17 +159,17 @@ class StudentController extends Controller
     {
         // Ensure the user is actually a student
         if ($student->user_type !== User::$STUDENT_ROLE) {
-            return redirect()->route(self::$INDEX_ROUTE)->with('error', 'This user is not a student.');
+            return redirect()->route(self::INDEX_ROUTE)->with('error', 'This user is not a student.');
         }
 
         // Attempt to delete the student
         try {
             $student->delete();
-            return redirect()->route(self::$INDEX_ROUTE)->with('success', 'Student deleted successfully.');
+            return redirect()->route(self::INDEX_ROUTE)->with('success', 'Student deleted successfully.');
         } catch (\Exception $e) {
             // Log the exception for debugging purposes
             Log::error('Failed to delete the major: ' . $e->getMessage(), ['exception' => $e]);
-            return redirect()->route(self::$INDEX_ROUTE)->with('error', 'Failed to delete the student.');
+            return redirect()->route(self::INDEX_ROUTE)->with('error', 'Failed to delete the student.');
         }
     }
 
@@ -165,20 +180,27 @@ class StudentController extends Controller
 
         // Ensure we have an array of student IDs
         if (empty($ids) || !is_array($ids)) {
-            return redirect()->route(self::$INDEX_ROUTE)
+            return redirect()->route(self::INDEX_ROUTE)
                 ->with('message', ['content' => 'No students selected for deletion.', 'type' => 'error']);
         }
 
         try {
-            // Perform a batch deletion using the student IDs
-            User::whereIn('id', $ids)
+            // Perform a batch deletion using the student IDs and get the count of deleted records
+            $deletedCount = User::whereIn('id', $ids)
                 ->where('user_type', User::$STUDENT_ROLE) // Ensure only student records are deleted
                 ->delete();
 
-            return redirect()->route(self::$INDEX_ROUTE)
-                ->with('message', ['content' => 'Selected students deleted successfully.', 'type' => 'success']);
+            // Check if any students were actually deleted
+            if ($deletedCount > 0) {
+                return redirect()->route(self::INDEX_ROUTE)
+                    ->with('message', ['content' => "$deletedCount students deleted successfully.", 'type' => 'success']);
+            } else {
+                return redirect()->route(self::INDEX_ROUTE)
+                    ->with('message', ['content' => 'No students were deleted.', 'type' => 'error']);
+            }
+
         } catch (\Exception $e) {
-            return redirect()->route(self::$INDEX_ROUTE)
+            return redirect()->route(self::INDEX_ROUTE)
                 ->with('message', ['content' => 'Failed to delete selected students.', 'type' => 'error']);
         }
     }

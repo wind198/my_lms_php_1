@@ -27,6 +27,11 @@ import useConfirmDialogStore from "@/store/useConfirmDialog";
 
 const settingLinks = [
     {
+        to: "/settings/generations",
+        text: textMap.nouns.generation,
+        value: "generations",
+    },
+    {
         to: "/settings/students",
         text: textMap.nouns.student,
         value: "students",
