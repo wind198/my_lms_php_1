@@ -52,22 +52,13 @@ const { toggleVisibity, visibleHeaders, headerWithVisibility } =
                 align: "start",
             },
             {
-                title: textMap.nouns.count
-                    .concat(" ")
-                    .concat(textMap.nouns.student),
-                value: "students_count",
-                sortable: true,
-                align: "end",
-                width: 160,
-            },
-            {
                 title: textMap.nouns.created_at,
                 value: "created_at",
                 sortable: true,
                 align: "start",
             },
         ],
-        intialShow: ["title", "description", "students_count"],
+        intialShow: ["title", "description"],
     });
 
 const { data, params } = toRefs(props);
@@ -108,18 +99,18 @@ const onChangeFilter = (v: any, keys: string[]) => {
     handleChangeFilter(newFilters);
 };
 
-const createStudentUrl = window.route("settings.generations.create");
+const createCourseUrl = window.route("study.courses.create");
 
 const onRowClick = (e: Event, { item }: { item: IUser }) => {
-    const showUrl = window.route("settings.generations.show", {
-        generation: item.id,
+    const showUrl = window.route("study.courses.show", {
+        course: item.id,
     });
 
     router.get(showUrl);
 };
 </script>
 <template>
-    <ListPage :create-url="createStudentUrl">
+    <ListPage :create-url="createCourseUrl">
         <VDataTable
             @click:row="onRowClick"
             density="compact"

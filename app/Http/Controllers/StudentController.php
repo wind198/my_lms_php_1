@@ -100,7 +100,7 @@ class StudentController extends Controller
 
         $student->sendEmailVerificationNotification();
 
-        Session::flash('message', ["content" => "Student created successfully.", "type" => "success"]);
+        Session::flash('message', ["content" => trans('message.create_ok'), "type" => "success"]);
 
         return redirect()->route(self::INDEX_ROUTE);
 
@@ -146,7 +146,7 @@ class StudentController extends Controller
         if ($student->wasChanged('email')) {
             $student->sendEmailVerificationNotification();
         }
-        Session::flash('message', ["content" => "Student details updated successfully.", "type" => "success"]);
+        Session::flash('message', ["content" => trans('message.update_ok'), "type" => "success"]);
 
         // Redirect to the student listing with a success message
         return redirect()->route(self::SHOW_ROUTE, ["student" => $student->getKey()]);
@@ -159,17 +159,22 @@ class StudentController extends Controller
     {
         // Ensure the user is actually a student
         if ($student->user_type !== User::$STUDENT_ROLE) {
-            return redirect()->route(self::INDEX_ROUTE)->with('error', 'This user is not a student.');
+            Session::flash('message', ["content" => trans('This user is not a student.'), "type" => "error"]);
+            return redirect()->route(self::INDEX_ROUTE);
         }
 
         // Attempt to delete the student
         try {
             $student->delete();
-            return redirect()->route(self::INDEX_ROUTE)->with('success', 'Student deleted successfully.');
+            Session::flash('message', ["content" => trans('message.delete_ok'), "type" => "success"]);
+
+            return redirect()->route(self::INDEX_ROUTE);
         } catch (\Exception $e) {
             // Log the exception for debugging purposes
             Log::error('Failed to delete the major: ' . $e->getMessage(), ['exception' => $e]);
-            return redirect()->route(self::INDEX_ROUTE)->with('error', 'Failed to delete the student.');
+            Session::flash('message', ["content" => trans('message.delete_fail'), "type" => "error"]);
+
+            return redirect()->route(self::INDEX_ROUTE)->with('error', trans());
         }
     }
 
@@ -180,8 +185,9 @@ class StudentController extends Controller
 
         // Ensure we have an array of student IDs
         if (empty($ids) || !is_array($ids)) {
-            return redirect()->route(self::INDEX_ROUTE)
-                ->with('message', ['content' => 'No students selected for deletion.', 'type' => 'error']);
+            Session::flash('message', ["content" => trans('message.delete_empty', ['resource' => trans('noun.student')]), "type" => "error"]);
+
+            return redirect()->route(self::INDEX_ROUTE);
         }
 
         try {
@@ -190,18 +196,22 @@ class StudentController extends Controller
                 ->where('user_type', User::$STUDENT_ROLE) // Ensure only student records are deleted
                 ->delete();
 
+            $message = trans('message.delete_ok', ['count' => $deletedCount, 'resource' => trans('noun.student')]);
             // Check if any students were actually deleted
             if ($deletedCount > 0) {
-                return redirect()->route(self::INDEX_ROUTE)
-                    ->with('message', ['content' => "$deletedCount students deleted successfully.", 'type' => 'success']);
+                Session::flash('message', ["content" => $message, "type" => "success"]);
+
+                return redirect()->route(self::INDEX_ROUTE);
             } else {
-                return redirect()->route(self::INDEX_ROUTE)
-                    ->with('message', ['content' => 'No students were deleted.', 'type' => 'error']);
+                Session::flash('message', ["content" => $message, "type" => "error"]);
+
+                return redirect()->route(self::INDEX_ROUTE);
             }
 
         } catch (\Exception $e) {
-            return redirect()->route(self::INDEX_ROUTE)
-                ->with('message', ['content' => 'Failed to delete selected students.', 'type' => 'error']);
+            Session::flash('message', ["content" => trans('message.delete_fail'), "type" => "error"]);
+
+            return redirect()->route(self::INDEX_ROUTE);
         }
     }
 

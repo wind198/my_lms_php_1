@@ -2,6 +2,8 @@
 
 namespace App\Http\Requests;
 
+use App\Helpers\ValidationHelper;
+use App\Models\Major;
 use Illuminate\Foundation\Http\FormRequest;
 
 class UpdateMajorRequest extends FormRequest
@@ -21,8 +23,10 @@ class UpdateMajorRequest extends FormRequest
      */
     public function rules(): array
     {
-        return [
-            //
-        ];
+        $rules = Major::getRules();
+
+        $rules = ValidationHelper::makeRulesOptional($rules);
+
+        return $rules;
     }
 }

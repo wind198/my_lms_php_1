@@ -15,7 +15,7 @@ import {
 } from "vuetify/components";
 import { Link, usePage } from "@inertiajs/vue3";
 import { concatClasses } from "@/helper";
-import { AppLinkClasses, NavLinkClasses } from "@/constants";
+import { MenuLinkClasses, NavLinkClasses } from "@/constants";
 import LeftDrawerSubMenuTogglerButton from "@/Components/common/LeftDrawerSubMenuTogglerButton.vue";
 import { computed, ref } from "vue";
 import type { IUser } from "@/types/entities/user.type";

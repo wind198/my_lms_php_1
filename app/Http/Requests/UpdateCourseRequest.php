@@ -2,6 +2,8 @@
 
 namespace App\Http\Requests;
 
+use App\Helpers\ValidationHelper;
+use App\Models\Course;
 use Illuminate\Foundation\Http\FormRequest;
 
 class UpdateCourseRequest extends FormRequest
@@ -21,8 +23,10 @@ class UpdateCourseRequest extends FormRequest
      */
     public function rules(): array
     {
-        return [
-            //
-        ];
+        $rules = Course::getRules();
+
+        $rules = ValidationHelper::makeRulesOptional($rules);
+
+        return $rules;
     }
 }

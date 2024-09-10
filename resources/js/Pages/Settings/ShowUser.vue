@@ -1,3 +1,10 @@
+<script lang="ts">
+export default {
+    // @ts-expect-error
+    layout: (h, page) =>
+        h(ColumnsLayoutForDashboard, () => h(SettingsLayout, () => page)),
+};
+</script>
 <script setup lang="ts">
 import { camelCase } from "lodash-es";
 import {
@@ -11,7 +18,9 @@ import { textMap } from "../../constants/text";
 import useCreatePage from "../../hooks/useCreatePage";
 import { Link, router } from "@inertiajs/vue3";
 import { computed } from "vue";
-import { AppLinkClasses } from "@/constants";
+import { AppLinkClasses, MenuLinkClasses } from "@/constants";
+import ColumnsLayoutForDashboard from "@/Layouts/ColumnsLayoutForDashboard.vue";
+import SettingsLayout from "@/Layouts/SettingsLayout.vue";
 
 const { resource, recordData, resourcePlural } = useCreatePage();
 
@@ -67,7 +76,7 @@ const generationUrl = computed(() => {
                     {{ textMap.nouns.generation }}
                 </VListItemTitle>
                 <VListItemSubtitle>
-                    <Link :class="[AppLinkClasses]":href="generationUrl">
+                    <Link :class="[AppLinkClasses]" :href="generationUrl">
                         {{ recordData.generation?.title }}
                     </Link>
                 </VListItemSubtitle></VListItem

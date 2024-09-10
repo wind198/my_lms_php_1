@@ -9,10 +9,12 @@ export default function useCheckLinkActive() {
             const urlObject = new URL(path);
             path = urlObject.pathname;
         }
+        const currentPathname = page.url.replace(/\/+$/, "");
+
         if (strict) {
-            return path === page.url;
+            return path === currentPathname;
         } else {
-            return path.startsWith(page.url);
+            return path.startsWith(currentPathname);
         }
     };
 

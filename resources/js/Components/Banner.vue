@@ -21,7 +21,7 @@ watchEffect(async () => {
         <VSnackbar
             :timeout="5000"
             close-on-back
-            :height="40"
+            :height="32"
             v-if="message"
             v-model="show"
             multi-line

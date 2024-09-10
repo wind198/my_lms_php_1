@@ -6,7 +6,7 @@
 }
 
 // classes start with _ is intended not to be used alone
-._app-link {
+._menu-link {
     text-decoration: none;
     border-radius: 2px;
     &:hover {
@@ -16,3 +16,4 @@
         background: rgb(230, 230, 230);
     }
 }
+

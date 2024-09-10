@@ -88,8 +88,7 @@ class MajorController extends Controller
 
         $major = Major::create($validated);
 
-        Session::flash('message', ["content" => "Major created successfully.", "type" => "success"]);
-
+        Session::flash('message', ["content" => trans('message.create_ok'), "type" => "success"]);
         return redirect()->route(self::INDEX_ROUTE);
 
     }
@@ -121,9 +120,7 @@ class MajorController extends Controller
         // Update the major's details
         $major->update($validated);
 
-
-        Session::flash('message', ["content" => "Major details updated successfully.", "type" => "success"]);
-
+        Session::flash('message', ["content" => trans('message.update_ok'), "type" => "success"]);
         // Redirect to the major listing with a success message
         return redirect()->route(self::SHOW_ROUTE, ["major" => $major->getKey()]);
     }
@@ -135,7 +132,7 @@ class MajorController extends Controller
         try {
             // Attempt to delete the major
             $major->delete();
-
+            Session::flash('message', ["content" => trans('message.delete_ok'), "type" => "success"]);
             return redirect()->route(self::INDEX_ROUTE)->with('message', [
                 "content" => 'Major deleted successfully.',
                 "type" => "success"
@@ -143,7 +140,7 @@ class MajorController extends Controller
         } catch (\Exception $e) {
             // Log the exception for debugging purposes
             Log::error('Failed to delete the major: ' . $e->getMessage(), ['exception' => $e]);
-
+            Session::flash('message', ["content" => trans('message.delete_fail'), "type" => "error"]);
             return redirect()->route(self::INDEX_ROUTE)->with('message', [
                 "content" => 'Failed to delete the major. Please try again later.',
                 "type" => "error"

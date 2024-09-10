@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\SetBreadCrumbs;
 use App\Http\Middleware\SetSharedProps;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -17,7 +18,8 @@ return Application::configure(basePath: dirname(__DIR__))
             \Illuminate\Http\Middleware\AddLinkHeadersForPreloadedAssets::class,
         ]);
         $middleware->alias([
-            'set.sharedProps' => SetSharedProps::class
+            'set.sharedProps' => SetSharedProps::class,
+            'set.breadcrumbs' => SetBreadCrumbs::class
         ]);
         //
     })

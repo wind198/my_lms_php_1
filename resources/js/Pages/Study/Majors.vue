@@ -13,7 +13,7 @@ import { datetimeFormater } from "@/helper/formatter";
 import type { IUser } from "@/types/entities/user.type";
 import { cloneDeep, set } from "lodash-es";
 import { VDataTable } from "vuetify/components";
-import { AppLinkClasses } from "../../constants";
+import { MenuLinkClasses } from "../../constants";
 
 import ServerTableHeadCell from "@/Components/common/ServerTableHeadCell.vue";
 import ServerTablePagination from "@/Components/common/ServerTablePagination.vue";

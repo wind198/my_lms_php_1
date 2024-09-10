@@ -97,7 +97,7 @@ class TeacherController extends Controller
 
         $teacher->sendEmailVerificationNotification();
 
-        Session::flash('message', ["content" => "Teacher created successfully.", "type" => "success"]);
+        Session::flash('message', ["content" => trans('message.create_ok'), "type" => "success"]);
 
         return redirect()->route(self::INDEX_ROUTE);
 
@@ -134,8 +134,7 @@ class TeacherController extends Controller
         if ($teacher->wasChanged('email')) {
             $teacher->sendEmailVerificationNotification();
         }
-        Session::flash('message', ["content" => "Teacher details updated successfully.", "type" => "success"]);
-
+        Session::flash('message', ["content" => trans('message.update_ok'), "type" => "success"]);
         // Redirect to the teacher listing with a success message
         return redirect()->route(self::SHOW_ROUTE, ["teacher" => $teacher->getKey()]);
     }
@@ -147,17 +146,21 @@ class TeacherController extends Controller
 
         // Ensure the user is actually a teacher
         if ($teacher->user_type !== User::$TEACHER_ROLE) {
-            return redirect()->route(self::INDEX_ROUTE)->with('message', ["content" => 'This user is not a teacher.', "type" => "error"]);
+            Session::flash('message', ["content" => trans('This user is not a student.'), "type" => "error"]);
+
+            return redirect()->route(self::INDEX_ROUTE);
         }
 
         // Attempt to delete the teacher
         try {
             $teacher->delete();
-            return redirect()->route(self::INDEX_ROUTE)->with('message', ["content" => 'Teacher deleted successfully.', "type" => "success"]);
+            Session::flash('message', ["content" => trans('message.delete_ok'), "type" => "success"]);
+            return redirect()->route(self::INDEX_ROUTE);
         } catch (\Exception $e) {
             // Log the exception for debugging purposes
             Log::error('Failed to delete the major: ' . $e->getMessage(), ['exception' => $e]);
-            return redirect()->route(self::INDEX_ROUTE)->with('message', ["content" => 'Failed to delete the teacher.', "type" => "error"]);
+            Session::flash('message', ["content" => trans('message.delete_fail'), "type" => "error"]);
+            return redirect()->route(self::INDEX_ROUTE);
         }
 
     }
@@ -168,8 +171,9 @@ class TeacherController extends Controller
 
         // Ensure we have an array of teacher IDs
         if (empty($ids) || !is_array($ids)) {
-            return redirect()->route(self::INDEX_ROUTE)
-                ->with('message', ['content' => 'No teachers selected for deletion.', 'type' => 'error']);
+            Session::flash('message', ["content" => trans('message.delete_empty', ['resource' => trans('noun.student')]), "type" => "error"]);
+
+            return redirect()->route(self::INDEX_ROUTE);
         }
 
         try {
@@ -178,16 +182,18 @@ class TeacherController extends Controller
             $deletedCount = User::whereIn('id', $ids)
                 ->where('user_type', User::$TEACHER_ROLE) // Ensure only teacher records are deleted
                 ->delete();
-
+            $message = trans('message.delete_ok', ['count' => $deletedCount, 'resource' => trans('noun.student')]);
             // Check if any teachers were actually deleted
             if ($deletedCount > 0) {
-                return redirect()->route(self::INDEX_ROUTE)
-                    ->with('message', ['content' => "$deletedCount teachers deleted successfully.", 'type' => 'success']);
+                Session::flash('message', ["content" => $message, "type" => "success"]);
+                return redirect()->route(self::INDEX_ROUTE);
             } else {
-                return redirect()->route(self::INDEX_ROUTE)
-                    ->with('message', ['content' => 'No teachers were deleted.', 'type' => 'error']);
+                Session::flash('message', ["content" => $message, "type" => "error"]);
+                return redirect()->route(self::INDEX_ROUTE);
             }
         } catch (\Exception $e) {
+            Session::flash('message', ["content" => trans('message.delete_fail'), "type" => "error"]);
+
             return redirect()->route(self::INDEX_ROUTE)
                 ->with('message', ['content' => 'Failed to delete selected teachers.', 'type' => 'error']);
         }

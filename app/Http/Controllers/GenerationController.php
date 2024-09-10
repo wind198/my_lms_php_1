@@ -94,7 +94,7 @@ class GenerationController extends Controller
 
         $generation = Generation::create($validated);
 
-        Session::flash('message', ["content" => "Generation created successfully.", "type" => "success"]);
+        Session::flash('message', ["content" => trans('message.create_ok'), "type" => "success"]);
 
         return redirect()->route(self::INDEX_ROUTE);
 
@@ -128,8 +128,7 @@ class GenerationController extends Controller
         $generation->update($validated);
 
 
-        Session::flash('message', ["content" => "Generation details updated successfully.", "type" => "success"]);
-
+        Session::flash('message', ["content" => trans('message.update_ok'), "type" => "success"]);
         // Redirect to the generation listing with a success message
         return redirect()->route(self::SHOW_ROUTE, ["generation" => $generation->getKey()]);
     }
@@ -158,9 +157,9 @@ class GenerationController extends Controller
 
 
             if ($studentsCount > 0) {
-                Session::flash('message', ["content" => "$studentsCount students were disassociated from this generation.", "type" => "success"]);
+                Session::flash('message', ["content" => trans(":count students were disassociated from this generation.", ['count' => $studentsCount]), "type" => "success"]);
             } else {
-                Session::flash('message', ["content" => "Generation deleted successfully.", "type" => "success"]);
+                Session::flash('message', ["content" => trans('message.delete_ok'), "type" => "success"]);
             }
 
             return redirect()->route(self::INDEX_ROUTE);
@@ -170,6 +169,7 @@ class GenerationController extends Controller
             DB::rollBack();
             // Log the exception for debugging purposes
             Log::error('Failed to delete the generation: ' . $e->getMessage(), ['exception' => $e]);
+            Session::flash('message', ["content" => trans('message.delete_fail'), "type" => "error"]);
 
             // Return an error message
             return redirect()->route(self::INDEX_ROUTE)->with('message', [

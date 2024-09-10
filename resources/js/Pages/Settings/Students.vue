@@ -13,7 +13,7 @@ import { datetimeFormater } from "@/helper/formatter";
 import type { IUser } from "@/types/entities/user.type";
 import { cloneDeep, set } from "lodash-es";
 import { VCheckboxBtn, VDataTable } from "vuetify/components";
-import { AppLinkClasses } from "../../constants";
+import { MenuLinkClasses } from "../../constants";
 
 import ServerTableHeadCell from "@/Components/common/ServerTableHeadCell.vue";
 import ServerTablePagination from "@/Components/common/ServerTablePagination.vue";
@@ -174,14 +174,14 @@ const deleteManyUrl=computed(() => window.route(`settings.${resourcePlural}.dest
             </template>
             <template v-slot:item.email="{ value }">
                 <a
-                    :class="concatClasses(AppLinkClasses)"
+                    :class="concatClasses(MenuLinkClasses)"
                     :href="`mailto:${value}`"
                     >{{ value }}</a
                 >
             </template>
             <template v-slot:item.phone="{ value }">
                 <a
-                    :class="concatClasses(AppLinkClasses)"
+                    :class="concatClasses(MenuLinkClasses)"
                     :href="`tel:${value}`"
                     >{{ value }}</a
                 >

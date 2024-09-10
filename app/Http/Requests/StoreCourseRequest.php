@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Models\Course;
 use Illuminate\Foundation\Http\FormRequest;
 
 class StoreCourseRequest extends FormRequest
@@ -11,7 +12,7 @@ class StoreCourseRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -21,8 +22,6 @@ class StoreCourseRequest extends FormRequest
      */
     public function rules(): array
     {
-        return [
-            //
-        ];
+        return Course::getRules();
     }
 }

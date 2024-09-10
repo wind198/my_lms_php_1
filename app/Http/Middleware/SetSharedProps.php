@@ -30,6 +30,9 @@ class SetSharedProps
             $propsArray[trim($key)] = trim($value);
         }
 
+        foreach ($propsArray as $key => $value) {
+            $request->attributes->set($key, $value);
+        }
         // Share the key-value pairs with Inertia
         Inertia::share($propsArray);
         return $next($request);
