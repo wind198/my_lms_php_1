@@ -2,7 +2,7 @@
 import { computed } from "vue";
 import useResource from "../../hooks/useResource";
 import { textMap } from "../../constants/text";
-import { VBtn } from "vuetify/components";
+import { VBtn, VIcon } from "vuetify/components";
 import useConfirmDialogStore from "../../store/useConfirmDialog";
 import { router } from "@inertiajs/vue3";
 
@@ -58,20 +58,25 @@ const onClickDeleteUrl = () => {
 <template>
     <div
         v-if="selected.length"
-        class="px-4 py-2 d-flex align-center justify-space-between"
+        class="px-4 py-2 d-flex align-center justify-space-between bg-grey-lighten-2 rounded"
     >
         <span>{{ selectionText }}</span>
         <div class="d-flex actions">
-            <VBtn
-                variant="flat"
-                color="error"
-                type="button"
-                v-if="deleteUrl"
-                class="mr-2"
-                @click="onClickDeleteUrl"
-            >
-                {{ textMap.verbs.delete }}
-            </VBtn>
+            <slot name="actions-prepend"></slot>
+            <slot>
+                <VBtn
+                    variant="text"
+                    color="error"
+                    type="button"
+                    v-if="deleteUrl"
+                    class="mr-2"
+                    @click="onClickDeleteUrl"
+                    append-icon="mdi-delete"
+                >
+                    {{ textMap.verbs.delete }}
+                </VBtn>
+            </slot>
+            <slot name="actions-append"></slot>
         </div>
     </div>
 </template>

@@ -21,6 +21,7 @@ class StudentController extends Controller
     public const STORE_ROUTE = self::INDEX_ROUTE . '.store';
     public const SHOW_ROUTE = self::INDEX_ROUTE . '.show';
     public const EDIT_ROUTE = self::INDEX_ROUTE . '.edit';
+    public const EDIT_MANY_ROUTE = self::INDEX_ROUTE . '.edit-many';
     public const UPDATE_ROUTE = self::INDEX_ROUTE . '.update';
     public const DESTROY_ROUTE = self::INDEX_ROUTE . '.destroy';
     public const DESTROY_MANY_ROUTE = self::INDEX_ROUTE . '.destroy-many';
@@ -32,7 +33,7 @@ class StudentController extends Controller
     {
         $filters = $request->input('filters', []); // Filters array
 
-        $query = User::where('user_type', 'student');
+        $query = User::where('user_type', 'student')->with(['generation']);
 
         if (!empty($filters['q'])) {
             $q = $filters['q'];
@@ -213,6 +214,28 @@ class StudentController extends Controller
 
             return redirect()->route(self::INDEX_ROUTE);
         }
+    }
+
+
+    public function editMany(Request $request)
+    {
+        // Retrieve the array of student IDs from the request
+        $ids = $request->input('ids', []);
+
+        $selected = User::whereIn('id', $ids)
+            ->where('user_type', User::$STUDENT_ROLE)->get();
+        // Ensure we have an array of student IDs
+        if (!is_array($ids) || empty($ids) || !$selected->count()) {
+            Session::flash('message', ["content" => trans('message.update_empty', ['resource' => trans('noun.student')]), "type" => "error"]);
+            return redirect()->route(self::INDEX_ROUTE);
+        }
+
+        $generations = Generation::all(['id', 'title']); // Select only necessary fields (id and title)
+
+        return Inertia::render('Settings/EditManyUser', [
+            'selectedUsers' => $selected->toArray(),
+            'generations' => $generations
+        ]);
     }
 
 }

@@ -20,11 +20,19 @@ export const textMap = {
         long: "Hệ thống quản lý học tập",
         abbr: "LMS",
     },
+    title: {
+        updateManyUser: "Cập nhật thông tin người dùng",
+        updateForm: "Form cập nhật",
+    },
     adjectives: {
         current: "Hiện tại",
         new: "Mới",
     },
     nouns: {
+        gender: "Giới tính",
+        male: "Nam",
+        female: "Nữ",
+        dob: "Ngày sinh",
         generation: "Khóa sinh viên",
         column: "Cột",
         count: "Số lượng",
@@ -35,6 +43,7 @@ export const textMap = {
         avatar: "Ảnh đại diện",
         loginSession: "Phiên đăng nhập",
         userInfo: "Thông tin người dùng",
+        info: "Thông tin",
         address: "Địa chỉ",
         list: "Danh sách",
         human_management: "Nhân sự",

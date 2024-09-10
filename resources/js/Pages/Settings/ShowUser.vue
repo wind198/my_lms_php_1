@@ -11,6 +11,7 @@ import {
     VListItem,
     VListItemSubtitle,
     VListItemTitle,
+    VRadioGroup,
 } from "vuetify/components";
 import ShowPage from "../../Components/common/ShowPage.vue";
 import SimpleShowLayout from "../../Components/common/SimpleShowLayout.vue";
@@ -21,6 +22,7 @@ import { computed } from "vue";
 import { AppLinkClasses, MenuLinkClasses } from "@/constants";
 import ColumnsLayoutForDashboard from "@/Layouts/ColumnsLayoutForDashboard.vue";
 import SettingsLayout from "@/Layouts/SettingsLayout.vue";
+import { dateFormater } from "@/helper/formatter";
 
 const { resource, recordData, resourcePlural } = useCreatePage();
 
@@ -30,10 +32,13 @@ const editUrl = window.route(`settings.${resourcePlural}.edit`, {
 
 const textFieldsForShowUser = [
     "full_name",
+    "gender",
     "email",
     "phone",
     "address",
     "education_background",
+    "education_background",
+    "dob",
 ] as const;
 
 type ITextField = (typeof textFieldsForShowUser)[number];
@@ -44,6 +49,9 @@ const getLabel = (i: ITextField) => {
 };
 
 const getValue = (i: ITextField) => {
+    if (i === "dob") {
+        return !i ? "" : dateFormater.standard(i);
+    }
     if (i === "education_background") {
         // @ts-expect-error
         return textMap.nouns[recordData[i]];

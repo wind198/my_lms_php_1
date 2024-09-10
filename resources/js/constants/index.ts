@@ -1,3 +1,5 @@
+import { textMap } from "./text";
+
 export const DefaultTablePerPageItems = [10, 25, 50, 100];
 export const DefaultTablePerPage = DefaultTablePerPageItems[0];
 export const DefaultTableOrderBy = "created_at";
@@ -12,3 +14,10 @@ export const EducationBackgroundList = [
     "master",
     "phd",
 ] as const;
+
+export const eduBgSelectItems = EducationBackgroundList.map((i) => ({
+    value: i,
+    title: textMap.nouns[i],
+}));
+
+export const GenderOptionList = ['male', 'female'] as const;

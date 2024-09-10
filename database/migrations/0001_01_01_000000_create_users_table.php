@@ -18,7 +18,9 @@ return new class extends Migration {
             $table->string('full_name', User::$MAX_FULL_NAME_LENGTH);
             $table->string('email', User::$MAX_EMAIL_LENGTH)->unique();
             $table->timestamp('email_verified_at')->nullable();
+            $table->date('dob')->nullable();
             $table->string('password');
+            $table->enum('gender', [User::$GENDER_FEMALE, User::$GENDER_MALE])->nullable();
             $table->rememberToken();
             $table->timestamps();
             $table->string('phone', User::$MAX_PHONE_LENGTH)->nullable();
@@ -27,8 +29,7 @@ return new class extends Migration {
             $table->enum('user_type', [
                 User::$SUPER_ADMIN_ROLE,
                 User::$STUDENT_ROLE,
-                User
-                    ::$TEACHER_ROLE
+                User::$TEACHER_ROLE
 
             ]);
             $table->enum('education_background', [User::$EDUCATION_HIGHSCHOOL, User::$EDUCATION_BACHELOR, User::$EDUCATION_MASTER]);

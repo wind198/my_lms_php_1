@@ -6,19 +6,24 @@ export default {
 </script>
 <script setup lang="ts">
 import SimpleFormLayout from "@/Components/common/SimpleFormLayout.vue";
-import { EducationBackgroundList } from "@/constants";
+import {
+    EducationBackgroundList,
+    GenderOptionList,
+    eduBgSelectItems,
+} from "@/constants";
 import { textMap } from "@/constants/text";
 import { validationRules } from "@/helper/validation";
 import { IUser, type IEducationBackground } from "@/types/entities/user.type";
 import { useForm } from "@inertiajs/vue3";
 import { camelCase } from "lodash-es";
 import { computed } from "vue";
-import { VSelect, VTextField } from "vuetify/components";
+import { VRadio, VRadioGroup, VSelect, VTextField } from "vuetify/components";
 import CreatePage from "../../Components/common/CreatePage.vue";
 import ColumnsLayoutForDashboard from "../../Layouts/ColumnsLayoutForDashboard.vue";
 import SettingsLayout from "../../Layouts/SettingsLayout.vue";
 import useCreatePage from "../../hooks/useCreatePage";
 import { IGeneration } from "@/types/entities/generation.type";
+import AppDateSelectorMenu from "@/Components/common/AppDateSelectorMenu.vue";
 
 const textFieldsForCreateUser = [
     "first_name",
@@ -87,11 +92,6 @@ const form = useForm(
           } as IUser)
 );
 
-const selectEduBgItems = EducationBackgroundList.map((i) => ({
-    value: i,
-    title: textMap.nouns[i],
-}));
-
 const onSubmit = () => {
     const transformedData = form.transform((data) => {
         return {
@@ -128,6 +128,15 @@ const deleteUrl = computed((): string | undefined => {
             @submit="onSubmit"
             :processing="form.processing"
         >
+            <VRadioGroup v-model="form.gender">
+                <VRadio
+                    v-for="i in GenderOptionList"
+                    :key="i"
+                    :label="textMap.nouns[i]"
+                    :value="i"
+                ></VRadio>
+            </VRadioGroup>
+
             <VTextField
                 v-for="i in textFieldsForCreateUser"
                 :label="textMap.nouns[camelCase(i)]"
@@ -137,14 +146,17 @@ const deleteUrl = computed((): string | undefined => {
                 @update:model-value="form.errors[i] = undefined"
             ></VTextField>
             <VSelect
-                :items="selectEduBgItems"
+                :items="eduBgSelectItems"
                 item-title="title"
                 item-value="value"
                 :label="textMap.nouns.educationBackground"
                 v-model="form.education_background"
             ></VSelect>
+            <AppDateSelectorMenu
+                :label="textMap.nouns.dob"
+            ></AppDateSelectorMenu>
             <VSelect
-            :label="textMap.nouns.generation"
+                :label="textMap.nouns.generation"
                 v-if="resource === 'student'"
                 :items="generations"
                 item-value="id"

@@ -8,4 +8,5 @@ return [
     'delete_ok' => 'Xóa thành công :count :resource.',
     'delete_fail' => 'Xóa không thành công :count :resource.',
     'delete_empty' => 'Không có :resource nào được chọn để xóa.',
+    'update_empty' => 'Không có :resource nào được chọn để cập nhật.',
 ];

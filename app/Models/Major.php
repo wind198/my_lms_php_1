@@ -28,4 +28,10 @@ class Major extends Model
             'description' => ['nullable', 'string', 'max:' . HasEntityDescriptiveFields::$MAX_DESCRIPTION_LENGTH],
         ];
     }
+
+    public function courses()
+    {
+        return $this->hasMany(Course::class);
+    }
+
 }

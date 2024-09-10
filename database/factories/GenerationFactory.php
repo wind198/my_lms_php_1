@@ -18,7 +18,7 @@ class GenerationFactory extends Factory
     {
         return [
             'title' => fake()->words(3, true),
-            'description' => fake()->paragraph(3, true),
+            'description' => fake()->paragraph(1, true),
         ];
     }
 }

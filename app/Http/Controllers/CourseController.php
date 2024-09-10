@@ -32,7 +32,7 @@ class CourseController extends Controller
     {
         $filters = $request->input('filters', []); // Filters array
 
-        $query = Course::query();
+        $query = Course::query()->with(['major']);
 
         if (!empty($filters['q'])) {
             $q = $filters['q'];

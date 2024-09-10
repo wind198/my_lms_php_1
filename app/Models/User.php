@@ -25,7 +25,8 @@ class User extends Authenticatable implements MustVerifyEmail
     public static $EDUCATION_BACHELOR = 'bachelor';
     public static $EDUCATION_MASTER = 'master';
 
-
+    public static $GENDER_MALE = 'male';
+    public static $GENDER_FEMALE = 'female';
     /**
      * The attributes that are mass assignable.
      *
@@ -33,6 +34,8 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     protected $fillable = [
         'generation_id',
+        'gender',
+        'dob',
         'first_name',
         'last_name',
         'full_name',

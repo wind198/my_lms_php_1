@@ -12,7 +12,7 @@ import { textMap } from "@/constants/text";
 import { datetimeFormater } from "@/helper/formatter";
 import type { IUser } from "@/types/entities/user.type";
 import { cloneDeep, set } from "lodash-es";
-import { VCheckboxBtn, VDataTable } from "vuetify/components";
+import { VBtn, VCheckboxBtn, VDataTable } from "vuetify/components";
 import { MenuLinkClasses } from "../../constants";
 
 import ServerTableHeadCell from "@/Components/common/ServerTableHeadCell.vue";
@@ -121,6 +121,11 @@ const {resourcePlural} = useResource();
  
 const deleteManyUrl=computed(() => window.route(`settings.${resourcePlural}.destroy-many`,{ids: selected.value }));
 
+const onClickEditMany = () => {
+    router.get(window.route(`settings.${resourcePlural}.edit-many`,{ids: selected.value}))
+}
+ 
+
 </script>
 <template>
     <ListPage :create-url="createStudentUrl">
@@ -149,7 +154,13 @@ const deleteManyUrl=computed(() => window.route(`settings.${resourcePlural}.dest
                         ></TableColumnConfigurationButton>
                     </template>
                 </TableFilterToolbar>
-                <TableBulkActionToolbar @confirm-delete="selected=[]" :delete-url="deleteManyUrl" :selected="selected"></TableBulkActionToolbar>
+                <TableBulkActionToolbar @confirm-delete="selected=[]" :delete-url="deleteManyUrl" :selected="selected">
+                    <template v-slot:actions-prepend="">
+                        <VBtn @click="onClickEditMany" variant="text" color="primary" append-icon="mdi-pencil">
+                            {{ textMap.verbs.update }}
+                        </VBtn>
+                    </template>
+                </TableBulkActionToolbar>
             </template>
             <template
                 v-slot:'header.data-table-select'="{

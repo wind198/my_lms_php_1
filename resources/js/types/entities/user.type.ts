@@ -1,9 +1,12 @@
-import { EducationBackgroundList } from "../../constants";
+import { EducationBackgroundList, GenderOptionList } from "../../constants";
 import type { IEntity } from "./entity.type";
+import { IGeneration } from "./generation.type";
 
 export type IUserType = "student" | "teacher" | "staff";
 
 export type IEducationBackground = (typeof EducationBackgroundList)[number];
+
+export type IGender = (typeof GenderOptionList)[number];
 
 export type IUser = IEntity & {
     first_name: string;
@@ -19,4 +22,7 @@ export type IUser = IEntity & {
     user_type: IUserType;
     education_background: IEducationBackground;
     generation_id?: number;
+    generation?: IGeneration;
+    dob: string;
+    gender: IGender;
 };
