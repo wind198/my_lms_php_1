@@ -37,6 +37,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('/settings/students/store', [StudentController::class, 'store'])->name(StudentController::STORE_ROUTE);
         Route::get('/settings/students/edit-many', [StudentController::class, 'editMany'])->name(StudentController::EDIT_MANY_ROUTE);
         Route::delete('/settings/students/destroy-many', [StudentController::class, 'destroyMany'])->name(StudentController::DESTROY_MANY_ROUTE);
+        Route::patch('/settings/students/update-many', [StudentController::class, 'updateMany'])->name(StudentController::UPDATE_MANY_ROUTE);
         Route::patch('/settings/students/{student}/update', [StudentController::class, 'update'])->name(StudentController::UPDATE_ROUTE);
         Route::get('/settings/students/{student}/edit', [StudentController::class, 'edit'])->name(StudentController::EDIT_ROUTE);
         Route::delete('/settings/students/{student}/destroy', [StudentController::class, 'destroy'])->name(StudentController::DESTROY_ROUTE);

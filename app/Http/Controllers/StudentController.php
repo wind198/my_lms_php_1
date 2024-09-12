@@ -23,6 +23,7 @@ class StudentController extends Controller
     public const EDIT_ROUTE = self::INDEX_ROUTE . '.edit';
     public const EDIT_MANY_ROUTE = self::INDEX_ROUTE . '.edit-many';
     public const UPDATE_ROUTE = self::INDEX_ROUTE . '.update';
+    public const UPDATE_MANY_ROUTE = self::INDEX_ROUTE . '.update-many';
     public const DESTROY_ROUTE = self::INDEX_ROUTE . '.destroy';
     public const DESTROY_MANY_ROUTE = self::INDEX_ROUTE . '.destroy-many';
 
@@ -154,88 +155,51 @@ class StudentController extends Controller
     }
 
     /**
-     * Remove the specified resource from storage.
+     * Update the multiple record at once.
      */
-    public function destroy(User $student)
-    {
-        // Ensure the user is actually a student
-        if ($student->user_type !== User::$STUDENT_ROLE) {
-            Session::flash('message', ["content" => trans('This user is not a student.'), "type" => "error"]);
-            return redirect()->route(self::INDEX_ROUTE);
-        }
-
-        // Attempt to delete the student
-        try {
-            $student->delete();
-            Session::flash('message', ["content" => trans('message.delete_ok'), "type" => "success"]);
-
-            return redirect()->route(self::INDEX_ROUTE);
-        } catch (\Exception $e) {
-            // Log the exception for debugging purposes
-            Log::error('Failed to delete the major: ' . $e->getMessage(), ['exception' => $e]);
-            Session::flash('message', ["content" => trans('message.delete_fail'), "type" => "error"]);
-
-            return redirect()->route(self::INDEX_ROUTE)->with('error', trans());
-        }
-    }
-
-    public function destroyMany(Request $request)
+    public function updateMany(UpdateStudentRequest $request)
     {
         // Retrieve the array of student IDs from the request
         $ids = $request->input('ids', []);
+        // Validate the request data
+        $validated = $request->validated();
 
-        // Ensure we have an array of student IDs
+        // Ensure we have an array of student IDs and update data
         if (empty($ids) || !is_array($ids)) {
-            Session::flash('message', ["content" => trans('message.delete_empty', ['resource' => trans('noun.student')]), "type" => "error"]);
+            Session::flash('message', [
+                "content" => trans('message.update_empty', ['resource' => trans('noun.student')]),
+                "type" => "error"
+            ]);
 
             return redirect()->route(self::INDEX_ROUTE);
         }
 
         try {
-            // Perform a batch deletion using the student IDs and get the count of deleted records
-            $deletedCount = User::whereIn('id', $ids)
-                ->where('user_type', User::$STUDENT_ROLE) // Ensure only student records are deleted
-                ->delete();
+            // Perform a batch update using the student IDs and provided update data
+            $updatedCount = User::whereIn('id', $ids)
+                ->where('user_type', User::$STUDENT_ROLE) // Ensure only student records are updated
+                ->update($validated);
 
-            $message = trans('message.delete_ok', ['count' => $deletedCount, 'resource' => trans('noun.student')]);
-            // Check if any students were actually deleted
-            if ($deletedCount > 0) {
+            $message = trans('message.update_ok', ['count' => $updatedCount, 'resource' => trans('noun.student')]);
+
+            // Check if any students were actually updated
+            if ($updatedCount > 0) {
                 Session::flash('message', ["content" => $message, "type" => "success"]);
-
-                return redirect()->route(self::INDEX_ROUTE);
             } else {
                 Session::flash('message', ["content" => $message, "type" => "error"]);
-
-                return redirect()->route(self::INDEX_ROUTE);
             }
 
+            return redirect()->route(self::INDEX_ROUTE);
+
         } catch (\Exception $e) {
-            Session::flash('message', ["content" => trans('message.delete_fail'), "type" => "error"]);
+            // Handle exception and log error if necessary
+            Session::flash('message', [
+                "content" => trans('message.update_fail', ['resource' => trans('noun.student')]),
+                "type" => "error"
+            ]);
 
             return redirect()->route(self::INDEX_ROUTE);
         }
-    }
-
-
-    public function editMany(Request $request)
-    {
-        // Retrieve the array of student IDs from the request
-        $ids = $request->input('ids', []);
-
-        $selected = User::whereIn('id', $ids)
-            ->where('user_type', User::$STUDENT_ROLE)->get();
-        // Ensure we have an array of student IDs
-        if (!is_array($ids) || empty($ids) || !$selected->count()) {
-            Session::flash('message', ["content" => trans('message.update_empty', ['resource' => trans('noun.student')]), "type" => "error"]);
-            return redirect()->route(self::INDEX_ROUTE);
-        }
-
-        $generations = Generation::all(['id', 'title']); // Select only necessary fields (id and title)
-
-        return Inertia::render('Settings/EditManyUser', [
-            'selectedUsers' => $selected->toArray(),
-            'generations' => $generations
-        ]);
     }
 
 }

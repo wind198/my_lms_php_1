@@ -97,6 +97,18 @@ class User extends Authenticatable implements MustVerifyEmail
                 'nullable', // Make this field optional if needed
                 'exists:generations,id' // Ensure the generation_id exists in the generations table
             ],
+            'gender' => [
+                'required',
+                'string',
+                'in:' . implode(',', [
+                    User::$GENDER_FEMALE,
+                    User::$GENDER_MALE,
+                ])
+            ],
+            'dob' => [
+                'nullable',
+                'date',
+            ]
         ];
     }
 
