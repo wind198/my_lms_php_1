@@ -1,14 +1,18 @@
 <script setup lang="ts">
-import { ref } from "vue";
 import { VDatePicker, VMenu, VTextField } from "vuetify/components";
 import { dateFormater } from "../../helper/formatter";
 import dayjs from "dayjs";
+import { useAttrs } from "vue";
 
 const props = defineProps<{
     label: string;
-    filterKey?: string;
-    alwaysOn?: boolean;
 }>();
+
+defineOptions({ inheritAttrs: false });
+
+const attrs = useAttrs();
+
+const { filterKey, alwaysOn, ...otherAttrs } = attrs;
 
 const modelValue = defineModel({
     set(v: any) {
@@ -29,13 +33,13 @@ const handleClear = () => {
 };
 
 defineExpose({
-    filterKey: props.filterKey,
+    filterKey: filterKey,
     label: props.label,
-    alwaysOn: props.alwaysOn,
+    alwaysOn: !!alwaysOn,
 });
 </script>
 <template>
-    <div class="app-date-selector-menu">
+    <div class="app-date-selector-menu" v-bind="otherAttrs">
         <VMenu :close-on-content-click="false">
             <template v-slot:activator="{ props: activatorProps }">
                 <VTextField

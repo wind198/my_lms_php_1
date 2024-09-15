@@ -38,13 +38,13 @@ const setRef = (el) => {
     if (!el) {
         return;
     }
-    const key: string = el.filterKey;
+    const key: string = el.filterKey ?? el.attributes?.filterKey?.value;
+    const label = el.label ?? el.attributes?.label?.value;
+    const alwaysOn = !!el.alwaysOn?.value;
     if (!key) return;
     if (visibilityStatusList.value?.find((i) => i.keyStr === key)) {
         return;
     }
-    const label = el.label;
-    const alwaysOn = !!el.alwaysOn;
     const hasCurrentValue = get(props.filters, key.split(".")) !== undefined;
 
     const value = alwaysOn || hasCurrentValue ? true : false;

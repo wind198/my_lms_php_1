@@ -3,10 +3,11 @@
 namespace App\Http\Requests;
 
 use App\Helpers\ValidationHelper;
-use App\Models\Course;
+use App\Models\User;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
-class UpdateCourseRequest extends FormRequest
+class UpdateManyUsersRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -23,10 +24,11 @@ class UpdateCourseRequest extends FormRequest
      */
     public function rules(): array
     {
-        $rules = Course::getRules();
+        $rules = User::getRules();
 
-        $rules = ValidationHelper::makeRulesOptional($rules);
+        unset($rules['email']);
 
-        return $rules;
+        // Make each field optional by modifying the rules
+        return ValidationHelper::makeRulesOptional($rules);
     }
 }

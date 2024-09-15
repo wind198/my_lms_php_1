@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { textMap } from "@/constants/text";
 import { debounce } from "lodash-es";
+import { useAttrs } from "vue";
 import { VTextField } from "vuetify/components";
 
 const props = defineProps<{
@@ -8,6 +9,11 @@ const props = defineProps<{
     filterKey?: string;
     alwaysOn?: boolean;
 }>();
+
+defineOptions({ inheritAttrs: false });
+
+const attrs = useAttrs();
+const { filterKey, alwaysOn, ...otherAttrs } = attrs;
 
 const modelValue = defineModel();
 
@@ -18,9 +24,9 @@ const handleUpdateModelValue = debounce((v: string) => {
 }, 500);
 
 defineExpose({
-    filterKey: props.filterKey,
+    filterKey: filterKey,
     label: props.label,
-    alwaysOn: props.alwaysOn,
+    alwaysOn: !!alwaysOn,
 });
 </script>
 <template>
@@ -36,6 +42,7 @@ defineExpose({
         v-model="modelValue"
         prepend-inner-icon="mdi-magnify"
         @update:model-value="handleUpdateModelValue($event)"
+        v-bind:="otherAttrs"
     ></VTextField>
 </template>
 <style scoped>

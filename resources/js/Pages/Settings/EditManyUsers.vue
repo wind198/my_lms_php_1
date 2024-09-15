@@ -3,6 +3,7 @@ import PageTitle from "@/Components/common/PageTitle.vue";
 import SimpleFormLayout from "@/Components/common/SimpleFormLayout.vue";
 import { GenderOptionList, eduBgSelectItems } from "@/constants";
 import { textMap } from "@/constants/text";
+import { validationRules } from "@/helper/validation";
 import useResource from "@/hooks/useResource";
 import { IGeneration } from "@/types/entities/generation.type";
 import { IUser } from "@/types/entities/user.type";
@@ -63,14 +64,18 @@ const selectedIntroText = [
     textMap.nouns.user,
 ].join(" ");
 
-const settingsIntroText = [
-    textMap.verbs.selected,
-    `${selectedEditableSettingsCount.value}/${editableSettingsCount.value}`,
-    textMap.nouns.info.toLowerCase(),
-].join(" ");
+const settingsIntroText = computed(() =>
+    [
+        textMap.verbs.selected,
+        `${selectedEditableSettingsCount.value}/${editableSettingsCount.value}`,
+        textMap.nouns.info.toLowerCase(),
+    ].join(" ")
+);
 
 const form = useForm<IFormData>({
     gender: "female",
+    education_background: undefined,
+    generation_id: undefined,
 });
 
 const apendDeleteIcon = computed(() => {
@@ -81,11 +86,27 @@ const apendDeleteIcon = computed(() => {
 });
 
 const submit = () => {
-    form.post(window.route(`settings.${resourcePlural}.update-many`), {
-        onFinish: () => {
-            form.reset();
-        },
-    });
+    form.transform((data) => {
+        const { education_background, gender, generation_id } = data;
+
+        const output = {
+            ...(editableSettings.education_background && {
+                education_background,
+            }),
+            ...(editableSettings.gender && { gender }),
+            ...(editableSettings.generation_id && { generation_id }),
+        } as Record<string, any>;
+        return output;
+    }).patch(
+        window.route(`settings.${resourcePlural}.update-many`, {
+            ids: props.selectedUsers.map((i) => i.id),
+        }),
+        {
+            onFinish: () => {
+                form.reset();
+            },
+        }
+    );
 };
 </script>
 <template>
@@ -131,10 +152,7 @@ const submit = () => {
                 </template>
             </VExpansionPanel>
         </VExpansionPanels>
-        <SimpleFormLayout
-            class="mt-4 px-3 update-form"
-            @submit.prevent="submit"
-        >
+        <SimpleFormLayout class="mt-4 px-3 update-form" @submit="submit">
             <p class="font-weight-medium mb-3">
                 {{ textMap.title.updateForm }}
             </p>
@@ -149,6 +167,7 @@ const submit = () => {
                     editableSettings.gender = !editableSettings.gender
                 "
                 color="primary"
+                :rules="[validationRules.required()]"
             >
                 <VRadio
                     v-for="i in GenderOptionList"
@@ -169,6 +188,7 @@ const submit = () => {
                     editableSettings.education_background =
                         !editableSettings.education_background
                 "
+                :rules="[validationRules.required()]"
             ></VSelect>
             <VSelect
                 :append-icon="apendDeleteIcon"
@@ -182,6 +202,7 @@ const submit = () => {
                     editableSettings.generation_id =
                         !editableSettings.generation_id
                 "
+                :rules="[validationRules.required()]"
             ></VSelect>
         </SimpleFormLayout>
     </div>

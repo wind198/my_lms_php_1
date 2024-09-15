@@ -29,6 +29,7 @@ export const textMap = {
         new: "Mới",
     },
     nouns: {
+        action: "Hành động",
         gender: "Giới tính",
         male: "Nam",
         female: "Nữ",

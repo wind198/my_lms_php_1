@@ -3,17 +3,17 @@
 namespace App\Http\Requests;
 
 use App\Helpers\ValidationHelper;
-use App\Models\Course;
+use App\Models\Major;
 use Illuminate\Foundation\Http\FormRequest;
 
-class UpdateCourseRequest extends FormRequest
+class UpdateKclassRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
      */
     public function authorize(): bool
     {
-        return true;
+        return false;
     }
 
     /**
@@ -23,7 +23,7 @@ class UpdateCourseRequest extends FormRequest
      */
     public function rules(): array
     {
-        $rules = Course::getRules();
+        $rules = Major::getRules();
 
         $rules = ValidationHelper::makeRulesOptional($rules);
 

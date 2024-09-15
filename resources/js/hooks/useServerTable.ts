@@ -24,13 +24,15 @@ export default function useServerTable<T>({
     params: Ref<IServerTableParams<T>>;
     headers: Ref<any[]>;
 }) {
-    const handleChangeOrder = (key: string) => {
+    const handleChangeOrder = (key?: string, newOrder?: IOrder) => {
+        key = key || "created_at";
+        newOrder = newOrder || "desc";
+
         const matchColumn = headers.value.find((i) => i.value === key);
         if (!matchColumn?.sortable) {
             return;
         }
         const urlParams = new URLSearchParams(window.location.search);
-        const newOrder = params.value.order === "desc" ? "asc" : "desc";
 
         if (key === "created_at" && newOrder === "desc") {
             urlParams.delete("order");

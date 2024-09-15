@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreStudentRequest;
+use App\Http\Requests\UpdateManyUsersRequest;
 use App\Http\Requests\UpdateStudentRequest;
 use App\Models\Generation;
 use App\Models\User;
@@ -59,7 +60,7 @@ class StudentController extends Controller
 
         $students = $this->paginateQuery($query, $request->all(), ['created_at' => 'desc']);
 
-        return Inertia::render('Settings/Students', [
+        return Inertia::render('Settings/Users', [
             'data' => $students->items(),
             'params' => [
                 'total' => $students->total(),
@@ -133,6 +134,28 @@ class StudentController extends Controller
     }
 
     /**
+     * Show the form for editing the specified resource.
+     */
+    public function editMany(Request $request)
+    {// Retrieve the list of all generations
+        $generations = Generation::all(['id', 'title']); // Select only necessary fields (id and title)
+
+        $ids = $request->input('ids', []);
+
+        $selectedUsers = User::whereIn('id', $ids)
+            ->where('user_type', User::$STUDENT_ROLE) // Ensure only student records are updated
+            ->get();
+
+
+
+        // Render the Inertia component with userType and generations as props
+        return Inertia::render('Settings/EditManyUsers', [
+            'selectedUsers' => $selectedUsers,
+            'generations' => $generations
+        ]);
+    }
+
+    /**
      * Update the specified resource in storage.
      */
     public function update(User $student, UpdateStudentRequest $request, )
@@ -157,7 +180,7 @@ class StudentController extends Controller
     /**
      * Update the multiple record at once.
      */
-    public function updateMany(UpdateStudentRequest $request)
+    public function updateMany(UpdateManyUsersRequest $request)
     {
         // Retrieve the array of student IDs from the request
         $ids = $request->input('ids', []);

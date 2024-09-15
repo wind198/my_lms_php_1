@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreTeacherRequest;
+use App\Http\Requests\UpdateManyUsersRequest;
 use App\Http\Requests\UpdateTeacherRequest;
+use App\Models\Generation;
 use App\Models\User;
 use App\Traits\HandlesPagination;
 use Hash;
@@ -24,6 +26,8 @@ class TeacherController extends Controller
     public const UPDATE_ROUTE = self::INDEX_ROUTE . '.update';
     public const DESTROY_ROUTE = self::INDEX_ROUTE . '.destroy';
     public const DESTROY_MANY_ROUTE = self::INDEX_ROUTE . '.destroy-many';
+    public const EDIT_MANY_ROUTE = self::INDEX_ROUTE . '.edit-many';
+    public const UPDATE_MANY_ROUTE = self::INDEX_ROUTE . '.update-many';
 
     /**
      * Display a listing of the resource.
@@ -57,7 +61,7 @@ class TeacherController extends Controller
 
         $teachers = $this->paginateQuery($query, $request->all(), ['created_at' => 'desc']);
 
-        return Inertia::render('Settings/Teachers', [
+        return Inertia::render('Settings/Users', [
             'data' => $teachers->items(),
             'params' => [
                 'total' => $teachers->total(),
@@ -120,6 +124,29 @@ class TeacherController extends Controller
     }
 
     /**
+     * Show the form for editing the specified resource.
+     */
+    public function editMany(Request $request)
+    {// Retrieve the list of all generations
+        $generations = Generation::all(['id', 'title']); // Select only necessary fields (id and title)
+
+        $ids = $request->input('ids', []);
+
+        $selectedUsers = User::whereIn('id', $ids)
+            ->where('user_type', User::$TEACHER_ROLE) // Ensure only teacher records are updated
+            ->get();
+
+
+
+        // Render the Inertia component with userType and generations as props
+        return Inertia::render('Settings/EditManyUsers', [
+            'selectedUsers' => $selectedUsers,
+            'generations' => $generations
+        ]);
+    }
+
+
+    /**
      * Update the specified resource in storage.
      */
     public function update(User $teacher, UpdateTeacherRequest $request)
@@ -138,6 +165,58 @@ class TeacherController extends Controller
         // Redirect to the teacher listing with a success message
         return redirect()->route(self::SHOW_ROUTE, ["teacher" => $teacher->getKey()]);
     }
+
+
+    /**
+     * Update the multiple record at once.
+     */
+    public function updateMany(UpdateManyUsersRequest $request)
+    {
+        // Retrieve the array of teacher IDs from the request
+        $ids = $request->input('ids', []);
+        // Validate the request data
+        $validated = $request->validated();
+
+        // Ensure we have an array of teacher IDs and update data
+        if (empty($ids) || !is_array($ids)) {
+            Session::flash('message', [
+                "content" => trans('message.update_empty', ['resource' => trans('noun.teacher')]),
+                "type" => "error"
+            ]);
+
+            return redirect()->route(self::INDEX_ROUTE);
+        }
+
+        try {
+            // Perform a batch update using the teacher IDs and provided update data
+            $updatedCount = User::whereIn('id', $ids)
+                ->where('user_type', User::$TEACHER_ROLE) // Ensure only teacher records are updated
+                ->update($validated);
+
+            $message = trans('message.update_ok', ['count' => $updatedCount, 'resource' => trans('noun.teacher')]);
+
+            // Check if any teachers were actually updated
+            if ($updatedCount > 0) {
+                Session::flash('message', ["content" => $message, "type" => "success"]);
+            } else {
+                Session::flash('message', ["content" => $message, "type" => "error"]);
+            }
+
+            return redirect()->route(self::INDEX_ROUTE);
+
+        } catch (\Exception $e) {
+            // Handle exception and log error if necessary
+            Session::flash('message', [
+                "content" => trans('message.update_fail', ['resource' => trans('noun.teacher')]),
+                "type" => "error"
+            ]);
+
+            return redirect()->route(self::INDEX_ROUTE);
+        }
+    }
+
+
+
     /**
      * Remove the specified resource from storage.
      */
@@ -146,7 +225,7 @@ class TeacherController extends Controller
 
         // Ensure the user is actually a teacher
         if ($teacher->user_type !== User::$TEACHER_ROLE) {
-            Session::flash('message', ["content" => trans('This user is not a student.'), "type" => "error"]);
+            Session::flash('message', ["content" => trans('This user is not a teacher.'), "type" => "error"]);
 
             return redirect()->route(self::INDEX_ROUTE);
         }
@@ -171,7 +250,7 @@ class TeacherController extends Controller
 
         // Ensure we have an array of teacher IDs
         if (empty($ids) || !is_array($ids)) {
-            Session::flash('message', ["content" => trans('message.delete_empty', ['resource' => trans('noun.student')]), "type" => "error"]);
+            Session::flash('message', ["content" => trans('message.delete_empty', ['resource' => trans('noun.teacher')]), "type" => "error"]);
 
             return redirect()->route(self::INDEX_ROUTE);
         }
@@ -182,7 +261,7 @@ class TeacherController extends Controller
             $deletedCount = User::whereIn('id', $ids)
                 ->where('user_type', User::$TEACHER_ROLE) // Ensure only teacher records are deleted
                 ->delete();
-            $message = trans('message.delete_ok', ['count' => $deletedCount, 'resource' => trans('noun.student')]);
+            $message = trans('message.delete_ok', ['count' => $deletedCount, 'resource' => trans('noun.teacher')]);
             // Check if any teachers were actually deleted
             if ($deletedCount > 0) {
                 Session::flash('message', ["content" => $message, "type" => "success"]);

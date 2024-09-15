@@ -3,6 +3,8 @@
 return [
 
     // Users
+    'generation' => 'Khóa sinh viên',
+    'major' => 'Chuyên ngành',
     'student' => 'Sinh viên',
     'home' => 'Trang chủ',
     'teacher' => 'Giáo viên',

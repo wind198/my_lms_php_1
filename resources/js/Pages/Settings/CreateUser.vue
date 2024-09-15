@@ -152,9 +152,9 @@ const deleteUrl = computed((): string | undefined => {
                 :label="textMap.nouns.educationBackground"
                 v-model="form.education_background"
             ></VSelect>
-            <AppDateSelectorMenu
+            <!-- <AppDateSelectorMenu
                 :label="textMap.nouns.dob"
-            ></AppDateSelectorMenu>
+            ></AppDateSelectorMenu> -->
             <VSelect
                 :label="textMap.nouns.generation"
                 v-if="resource === 'student'"

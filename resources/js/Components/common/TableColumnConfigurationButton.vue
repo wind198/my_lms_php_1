@@ -34,6 +34,7 @@ const emit = defineEmits(["toggle-column"]);
                     :label="label"
                     @update:model-value="emit('toggle-column', value)"
                     hide-details="auto"
+                    :id="`column-${value}-toggler`"
                 ></VSwitch>
             </div>
         </VSheet>
@@ -42,5 +43,8 @@ const emit = defineEmits(["toggle-column"]);
 <style scoped>
 .column-menu-sheet {
     min-width: 240px;
+}
+.column-actions-toggler {
+    display: none;
 }
 </style>

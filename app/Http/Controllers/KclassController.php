@@ -2,22 +2,23 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\StoreCourseRequest;
-use App\Http\Requests\UpdateCourseRequest;
-use App\Models\Course;
+use App\Models\Kclass;
+use App\Models\Klass;
+use App\Http\Requests\StoreKlassRequest;
+use App\Http\Requests\UpdateKclassRequest;
 use App\Models\Major;
+use App\Models\User;
 use App\Traits\HandlesPagination;
-use Hash;
 use Inertia\Inertia;
-use Illuminate\Http\Request;
 use Log;
+use Request;
 use Session;
 
-class CourseController extends Controller
+class KclassController extends Controller
 {
     use HandlesPagination;
 
-    public const INDEX_ROUTE = 'study.courses';
+    public const INDEX_ROUTE = 'study.kclasses';
     public const CREATE_ROUTE = self::INDEX_ROUTE . '.create';
     public const STORE_ROUTE = self::INDEX_ROUTE . '.store';
     public const SHOW_ROUTE = self::INDEX_ROUTE . '.show';
@@ -26,14 +27,16 @@ class CourseController extends Controller
     public const DESTROY_ROUTE = self::INDEX_ROUTE . '.destroy';
 
 
+
     /**
      * Display a listing of the resource.
      */
     public function index(Request $request)
     {
+
         $filters = $request->input('filters', []); // Filters array
 
-        $query = Course::query()->with(['major']);
+        $query = Kclass::query()->with(['mainTeacher', 'course'])->withCount(['students']);
 
         if (!empty($filters['q'])) {
             $q = $filters['q'];
@@ -70,6 +73,7 @@ class CourseController extends Controller
                 'filters' => $filters,
             ],
         ]);
+
     }
 
     /**
@@ -77,19 +81,19 @@ class CourseController extends Controller
      */
     public function create()
     {
-        $majors = Major::all(['id', 'title']);
-
-        return Inertia::render('Study/CreateCourse', ['majors' => $majors]);
+        $courses = Major::all(['id', 'title']);
+        $teachers = User::all(['id', 'full_name'])->where('user_type', User::$TEACHER_ROLE);
+        return Inertia::render('Study/CreateKclass', ['courses' => $courses, 'teachers' => $teachers]);
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreCourseRequest $request)
+    public function store(StoreKlassRequest $request)
     {
         $validated = $request->validated();
 
-        $course = Course::create($validated);
+        $kclass = Kclass::create($validated);
 
         Session::flash('message', ["content" => trans('message.create_ok'), "type" => "success"]);
         return redirect()->route(self::INDEX_ROUTE);
@@ -99,45 +103,47 @@ class CourseController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Course $course)
+    public function show(Kclass $kclass)
     {
-        $course->load('major');
-        return Inertia::render('Study/ShowCourse', ['recordData' => $course->toArray(),]);
+        $kclass->load(['mainTeacher', 'course'])->loadCount(['students']);
+        return Inertia::render('Study/ShowCourse', ['recordData' => $kclass->toArray(),]);
     }
 
-    /* /**
+    /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Course $course)
+    public function edit(Kclass $kclass)
     {
-        $course->load('major');
-        $majors = Major::all(['id', 'title']);
-        return Inertia::render('Study/CreateCourse', ['recordData' => $course->toArray(), 'majors' => $majors]);
+        $kclass->load(['mainTeacher', 'course'])->loadCount(['students']);
+        $courses = Major::all(['id', 'title']);
+        $teachers = User::all(['id', 'full_name'])->where('user_type', User::$TEACHER_ROLE);
+        return Inertia::render('Study/CreateCourse', ['recordData' => $kclass->toArray(), 'courses' => $courses, 'teachers' => $teachers]);
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Course $course, UpdateCourseRequest $request)
+    public function update(UpdateKclassRequest $request, Kclass $kclass)
     {
         // Validate the request data
         $validated = $request->validated();
 
         // Update the course's details
-        $course->update($validated);
+        $kclass->update($validated);
 
         Session::flash('message', ["content" => trans('message.update_ok'), "type" => "success"]);
         // Redirect to the course listing with a success message
-        return redirect()->route(self::SHOW_ROUTE, ["course" => $course->getKey()]);
+        return redirect()->route(self::SHOW_ROUTE, ["course" => $kclass->getKey()]);
     }
+
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Course $course)
+    public function destroy(Kclass $kclass)
     {
         try {
             // Attempt to delete the course
-            $course->delete();
+            $kclass->delete();
             Session::flash('message', ["content" => trans('message.delete_ok'), "type" => "success"]);
             return redirect()->route(self::INDEX_ROUTE)->with('message', [
                 "content" => 'Course deleted successfully.',
@@ -145,10 +151,10 @@ class CourseController extends Controller
             ]);
         } catch (\Exception $e) {
             // Log the exception for debugging purposes
-            Log::error('Failed to delete the course: ' . $e->getMessage(), ['exception' => $e]);
+            Log::error('Failed to delete the kclass: ' . $e->getMessage(), ['exception' => $e]);
             Session::flash('message', ["content" => trans('message.delete_fail'), "type" => "error"]);
             return redirect()->route(self::INDEX_ROUTE)->with('message', [
-                "content" => 'Failed to delete the course. Please try again later.',
+                "content" => 'Failed to delete the kclass. Please try again later.',
                 "type" => "error"
             ]);
         }

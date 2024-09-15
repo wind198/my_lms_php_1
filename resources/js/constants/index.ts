@@ -20,4 +20,10 @@ export const eduBgSelectItems = EducationBackgroundList.map((i) => ({
     title: textMap.nouns[i],
 }));
 
-export const GenderOptionList = ['male', 'female'] as const;
+export const GenderOptionList = ["male", "female"] as const;
+export const GenderSelectItems = GenderOptionList.map((i) => ({
+    value: i,
+    title: textMap.nouns[i],
+}));
+
+export const LIST_TABLE_COLUMNS_SHOWN = "list_table_columns_shown";

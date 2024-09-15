@@ -2,11 +2,10 @@
 
 namespace App\Http\Requests;
 
-use App\Helpers\ValidationHelper;
-use App\Models\Course;
+use App\Models\Kclass;
 use Illuminate\Foundation\Http\FormRequest;
 
-class UpdateCourseRequest extends FormRequest
+class StoreKclassRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -23,10 +22,6 @@ class UpdateCourseRequest extends FormRequest
      */
     public function rules(): array
     {
-        $rules = Course::getRules();
-
-        $rules = ValidationHelper::makeRulesOptional($rules);
-
-        return $rules;
+        return Kclass::getRules();
     }
 }

@@ -1,5 +1,6 @@
 import { camelCase, reverse, shuffle, snakeCase, uniq } from "lodash-es";
 import { boolean } from "yup";
+import { LIST_TABLE_COLUMNS_SHOWN } from "../constants";
 
 export const concatClasses = (classes: string[]) =>
     uniq([...classes].filter(Boolean).reverse())
@@ -103,4 +104,32 @@ export const keysToSnake = (input) => {
     }
 
     return output;
+};
+
+export const getColumnShownStatus = () => {
+    let status: Record<string, string[]>;
+    try {
+        status = JSON.parse(
+            sessionStorage.getItem(LIST_TABLE_COLUMNS_SHOWN) ?? "{}"
+        );
+    } catch (error) {
+        console.error(error);
+        status = {};
+    }
+
+    return status ?? {};
+};
+
+export const getColumnShownPerResource = (resource: string) => {
+    const currentStatus = getColumnShownStatus();
+    return currentStatus[resource];
+};
+
+export const setColumnShownForResource = (
+    resource: string,
+    columnsShown: string[]
+) => {
+    const status = getColumnShownStatus();
+    const newStatus = { ...status, [resource]: columnsShown };
+    sessionStorage.setItem(LIST_TABLE_COLUMNS_SHOWN, JSON.stringify(newStatus));
 };

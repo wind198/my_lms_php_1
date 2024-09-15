@@ -24,7 +24,7 @@ class SetBreadCrumbs
             ],
         ];
         $resource = $request->attributes->get('resource');
-        $primaryField = $request->attributes->get('pri$primaryField');
+        $primaryField = $request->attributes->get('primaryField');
         $indexRoute = $request->attributes->get('index_route');
         $record = $request->route($resource);
 

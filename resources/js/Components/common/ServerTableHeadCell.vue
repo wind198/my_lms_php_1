@@ -28,6 +28,7 @@ const handleClickHeadCell = () => {
         @click="handleClickHeadCell"
         :class="
             [
+                'px-1',
                 `head-cell-${props.value}`,
                 `text-${props.align ?? 'left'}`,
                 props.sortable ? 'cursor-pointer' : 'text-grey',
