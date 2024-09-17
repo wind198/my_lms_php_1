@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\CourseController;
 use App\Http\Controllers\GenerationController;
+use App\Http\Controllers\KclassController;
 use App\Http\Controllers\MajorController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\StudentController;
@@ -28,6 +29,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     $majorIndexRoute = MajorController::INDEX_ROUTE;
     $courseIndexRoute = CourseController::INDEX_ROUTE;
     $generationIndexRoute = GenerationController::INDEX_ROUTE;
+    $kclassIndexRoute = KclassController::INDEX_ROUTE;
     Route::middleware([
         "set.sharedProps:resource=student;primaryField=full_name;index_route=$studentIndexRoute",
         "set.breadcrumbs"
@@ -100,6 +102,19 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/settings/generations/{generation}/edit', 'edit')->name(GenerationController::EDIT_ROUTE);
         Route::delete('/settings/generations/{generation}/destroy', 'destroy')->name(GenerationController::DESTROY_ROUTE);
         Route::get('/settings/generations/{generation}', 'show')->name(GenerationController::SHOW_ROUTE);
+    });
+    // Kclasses
+    Route::middleware([
+        "set.sharedProps:resource=class;resource_plural=classes;primaryField=title;index_route=$kclassIndexRoute",
+        "set.breadcrumbs"
+    ])->controller(KclassController::class)->group(function () {
+        Route::get('/study/classes', 'index')->name(KclassController::INDEX_ROUTE);
+        Route::get('/study/classes/create', 'create')->name(KclassController::CREATE_ROUTE);
+        Route::post('/study/classes/store', 'store')->name(KclassController::STORE_ROUTE);
+        Route::patch('/study/classes/{generation}/update', 'update')->name(KclassController::UPDATE_ROUTE);
+        Route::get('/study/classes/{generation}/edit', 'edit')->name(KclassController::EDIT_ROUTE);
+        Route::delete('/study/classes/{generation}/destroy', 'destroy')->name(KclassController::DESTROY_ROUTE);
+        Route::get('/study/classes/{generation}', 'show')->name(KclassController::SHOW_ROUTE);
     });
 
 });

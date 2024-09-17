@@ -5,7 +5,7 @@ import { textMap } from "@/constants/text";
 import { datetimeFormater } from "@/helper/formatter";
 import type { IUser } from "@/types/entities/user.type";
 import { cloneDeep, set } from "lodash-es";
-import { VCheckboxBtn, VDataTable, VIcon } from "vuetify/components";
+import { VDataTable, VIcon } from "vuetify/components";
 import { AppLinkClasses, MenuLinkClasses } from "../../constants";
 
 import ServerTableHeadCell from "@/Components/common/ServerTableHeadCell.vue";
@@ -16,22 +16,20 @@ import useColumnConfigurationForTable from "@/hooks/useColumnConfigurationForTab
 import useServerTable from "@/hooks/useServerTable";
 import dayjs from "dayjs";
 import ListPage from "../../Components/common/ListPage.vue";
-import { concatClasses, removeValueFromObject } from "../../helper";
+import { concatClasses, joinWords, removeValueFromObject } from "../../helper";
 import type { IServerTableParams } from "../../types/common/server-table.type";
 import { Link, router } from "@inertiajs/vue3";
-import { computed, ref, toRaw, toRef, toRefs, toValue, unref } from "vue";
-import TableBulkActionToolbar from "../../Components/common/TableBulkActionToolbar.vue";
-import useResource from "../../hooks/useResource";
+import { toRaw, toRef, toRefs, toValue, unref } from "vue";
 import useResourceRoutes from "@/hooks/useResourceRoutes";
-import { ICourse } from "../../types/entities/course.type";
+import { IKclass } from "../../types/entities/kclass.type";
 type IProps = {
-    data: ICourse[];
-    params: IServerTableParams<ICourse>;
+    data: IKclass[];
+    params: IServerTableParams<IKclass>;
 };
 
 const props = defineProps<IProps>();
 
-const { createRoute, getEditRoute } = useResourceRoutes();
+const { createRoute, getEditRoute, getShowRoute } = useResourceRoutes();
 
 const { toggleVisibity, visibleHeaders, headerWithVisibility } =
     useColumnConfigurationForTable({
@@ -43,8 +41,29 @@ const { toggleVisibity, visibleHeaders, headerWithVisibility } =
                 align: "start",
             },
             {
+                title: textMap.nouns.classCode,
+                value: "code",
+                sortable: true,
+                align: "start",
+            },
+            {
                 title: textMap.nouns.description,
                 value: "description",
+                sortable: true,
+                align: "start",
+            },
+            {
+                title: textMap.nouns.course,
+                value: "course_id",
+                sortable: true,
+                align: "start",
+            },
+            {
+                title: joinWords(
+                    textMap.adjectives.main,
+                    textMap.nouns.teacher.toLowerCase()
+                ),
+                value: "main_teacher_id",
                 sortable: true,
                 align: "start",
             },
@@ -62,7 +81,7 @@ const { toggleVisibity, visibleHeaders, headerWithVisibility } =
                 width: 40,
             },
         ],
-        intialShow: ["title", "description"],
+        intialShow: ["title", "code", "course_id"],
     });
 
 const { data, params } = toRefs(props);
@@ -74,7 +93,7 @@ const {
     handleChangePerPage,
 } = useServerTable({
     data: data,
-    headers: headerWithVisibility,
+    headers: visibleHeaders,
     params: params as any,
 });
 
@@ -104,11 +123,8 @@ const onChangeFilter = (v: any, keys: string[]) => {
 };
 
 const onRowClick = (e: Event, { item }: { item: IUser }) => {
-    const showUrl = window.route("study.courses.show", {
-        course: item.id,
-    });
-
-    router.get(showUrl);
+    const showUrl = getShowRoute(item.id);
+    router.get(showUrl ?? "");
 };
 
 const onUpdateSortBy = (v: any) => {
@@ -151,24 +167,6 @@ const onUpdateSortBy = (v: any) => {
                         </template>
                     </TableFilterToolbar>
                 </template>
-
-                <template v-slot:item.created_at="{ value }">
-                    {{ datetimeFormater.standard(value) }}
-                </template>
-                <template v-slot:item.email="{ value }">
-                    <a
-                        :class="concatClasses(MenuLinkClasses)"
-                        :href="`mailto:${value}`"
-                        >{{ value }}</a
-                    >
-                </template>
-                <template v-slot:item.phone="{ value }">
-                    <a
-                        :class="concatClasses(MenuLinkClasses)"
-                        :href="`tel:${value}`"
-                        >{{ value }}</a
-                    >
-                </template>
                 <template v-slot:item.actions="{ item }">
                     <div class="d-flex">
                         <Link
@@ -179,6 +177,16 @@ const onUpdateSortBy = (v: any) => {
                             <VIcon>mdi-pencil</VIcon>
                         </Link>
                     </div>
+                </template>
+
+                <template v-slot:item.created_at="{ value }">
+                    {{ datetimeFormater.standard(value) }}
+                </template>
+                <template v-slot:item.main_teacher_id="{ item }">
+                    {{ item.mainTeacher?.full_name }}
+                </template>
+                <template v-slot:item.course_id="{ item }">
+                    {{ item.course?.title }}
                 </template>
             </VDataTable>
             <ServerTablePagination

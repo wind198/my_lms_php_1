@@ -21,9 +21,10 @@ import type { IServerTableParams } from "../../types/common/server-table.type";
 import { Link, router } from "@inertiajs/vue3";
 import { toRaw, toRef, toRefs, toValue, unref } from "vue";
 import useResourceRoutes from "@/hooks/useResourceRoutes";
+import { IMajor } from "../../types/entities/major.type";
 type IProps = {
-    data: IUser[];
-    params: IServerTableParams<IUser>;
+    data: IMajor[];
+    params: IServerTableParams<IMajor>;
 };
 
 const props = defineProps<IProps>();
@@ -157,20 +158,6 @@ const onUpdateSortBy = (v: any) => {
                     </div>
                 </template>
 
-                <template v-slot:headers="{ columns }">
-                    <tr>
-                        <template v-for="column in columns" :key="column.key">
-                            <ServerTableHeadCell
-                                :value="column.key"
-                                :sortable="column.sortable"
-                                :current-order="params.order"
-                                :is-active="params.order_by === column.key"
-                                :align="column.align"
-                                :title="column.title"
-                                @click="handleChangeOrder($event)"
-                            ></ServerTableHeadCell>
-                        </template></tr
-                ></template>
                 <template v-slot:item.created_at="{ value }">
                     {{ datetimeFormater.standard(value) }}
                 </template>

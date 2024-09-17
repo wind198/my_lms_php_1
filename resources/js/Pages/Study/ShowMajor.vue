@@ -1,10 +1,3 @@
-<script lang="ts">
-export default {
-    // @ts-expect-error
-    layout: (h, page) =>
-        h(ColumnsLayoutForDashboard, () => h(SettingsLayout, () => page)),
-};
-</script>
 <script setup lang="ts">
 import { camelCase } from "lodash-es";
 import {
@@ -40,16 +33,18 @@ const getValue = (i: ITextField) => {
 };
 </script>
 <template>
-    <ShowPage :edit-url="editUrl">
-        <SimpleShowLayout>
-            <VListItem v-for="i in textFieldsForShowUser">
-                <VListItemTitle>
-                    {{ getLabel(i) }}
-                </VListItemTitle>
+    <SettingsLayout
+        ><ShowPage :edit-url="editUrl">
+            <SimpleShowLayout>
+                <VListItem v-for="i in textFieldsForShowUser">
+                    <VListItemTitle>
+                        {{ getLabel(i) }}
+                    </VListItemTitle>
 
-                <VListItemSubtitle> {{ getValue(i) }} </VListItemSubtitle>
-            </VListItem>
-        </SimpleShowLayout>
-    </ShowPage>
+                    <VListItemSubtitle> {{ getValue(i) }} </VListItemSubtitle>
+                </VListItem>
+            </SimpleShowLayout>
+        </ShowPage>
+    </SettingsLayout>
 </template>
 <style scoped></style>

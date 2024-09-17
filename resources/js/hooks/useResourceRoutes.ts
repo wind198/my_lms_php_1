@@ -17,20 +17,31 @@ export default function useResourceRoutes() {
             ? window.route([indexRoute.value, "create"].join("."))
             : undefined
     );
-    const getShowRoute = (recordId: number, $resource = resource) =>
+    const storeRoute = computed(() =>
         indexRoute.value
+            ? window.route([indexRoute.value, "store"].join("."))
+            : undefined
+    );
+    const getShowRoute = (recordId?: number, $resource = resource) =>
+        indexRoute.value && recordId
             ? window.route([indexRoute.value, "show"].join("."), {
                   [resource]: recordId,
               })
             : undefined;
-    const getEditRoute = (recordId: number) =>
-        indexRoute.value
+    const getEditRoute = (recordId?: number) =>
+        indexRoute.value && recordId
             ? window.route([indexRoute.value, "edit"].join("."), {
                   [resource]: recordId,
               })
             : undefined;
-    const getDestroyRoute = (recordId: number) =>
-        indexRoute.value
+    const getUpdateRoute = (recordId?: number) =>
+        indexRoute.value && recordId
+            ? window.route([indexRoute.value, "update"].join("."), {
+                  [resource]: recordId,
+              })
+            : undefined;
+    const getDestroyRoute = (recordId?: number) =>
+        indexRoute.value && recordId
             ? window.route([indexRoute.value, "destroy"].join("."), {
                   [resource]: recordId,
               })
@@ -56,5 +67,7 @@ export default function useResourceRoutes() {
         getDestroyManyRoute,
         getEditRoute,
         getShowRoute,
+        getUpdateRoute,
+        storeRoute,
     };
 }

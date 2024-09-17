@@ -13,7 +13,8 @@ class Kclass extends Model
         'title',
         'description',
         'main_teacher_id',
-        'course_id'
+        'course_id',
+        'code'
     ];
 
     // Validation rules for the model
@@ -21,6 +22,7 @@ class Kclass extends Model
     {
         return [
             'title' => ['required', 'string', 'max:' . HasEntityDescriptiveFields::$MAX_TITLE_LENGTH],
+            'code' => ['required', 'string', 'max:' . HasEntityDescriptiveFields::$MAX_TITLE_LENGTH],
             'description' => ['nullable', 'string', 'max:' . HasEntityDescriptiveFields::$MAX_DESCRIPTION_LENGTH],
             'course_id' => [
                 'nullable', // Make this field optional if needed

@@ -53,6 +53,11 @@ const studyLinks = [
         text: textMap.nouns.course,
         value: "courses",
     },
+    {
+        to: "/study/classes",
+        text: textMap.nouns.class,
+        value: "classes",
+    },
 ];
 
 const expansionPanelValues = ["human_management", "study"] as const;

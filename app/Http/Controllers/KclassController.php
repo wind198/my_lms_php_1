@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreKclassRequest;
 use App\Models\Kclass;
 use App\Models\Klass;
 use App\Http\Requests\StoreKlassRequest;
@@ -9,16 +10,16 @@ use App\Http\Requests\UpdateKclassRequest;
 use App\Models\Major;
 use App\Models\User;
 use App\Traits\HandlesPagination;
+use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Log;
-use Request;
 use Session;
 
 class KclassController extends Controller
 {
     use HandlesPagination;
 
-    public const INDEX_ROUTE = 'study.kclasses';
+    public const INDEX_ROUTE = 'study.classes';
     public const CREATE_ROUTE = self::INDEX_ROUTE . '.create';
     public const STORE_ROUTE = self::INDEX_ROUTE . '.store';
     public const SHOW_ROUTE = self::INDEX_ROUTE . '.show';
@@ -89,7 +90,7 @@ class KclassController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreKlassRequest $request)
+    public function store(StoreKclassRequest $request)
     {
         $validated = $request->validated();
 

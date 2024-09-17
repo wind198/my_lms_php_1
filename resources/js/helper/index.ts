@@ -133,3 +133,6 @@ export const setColumnShownForResource = (
     const newStatus = { ...status, [resource]: columnsShown };
     sessionStorage.setItem(LIST_TABLE_COLUMNS_SHOWN, JSON.stringify(newStatus));
 };
+
+export const joinWords = (...input: any[]) =>
+    input.map((i) => i.toString()).join(" ");

@@ -10,12 +10,13 @@ return new class extends Migration {
      */
     public function up(): void
     {
-        Schema::create('klasses', function (Blueprint $table) {
+        Schema::create('kclasses', function (Blueprint $table) {
             $table->id();
             $table->timestamps();
             HasEntityDescriptiveFields::addTitleAndDescription($table);
             $table->foreignId('main_teacher_id')->nullable()->constrained('users'); // Add foreign key for main teacher
             $table->foreignId('course_id')->nullable()->constrained('courses'); // Add foreign key for course
+            $table->string('code');
         });
 
         // Create pivot table for many-to-many relation between Kclass and User (students)

@@ -27,8 +27,11 @@ export const textMap = {
     adjectives: {
         current: "Hiện tại",
         new: "Mới",
+        main: "Chính",
     },
     nouns: {
+        class: "Lớp học",
+        classCode: "Mã lớp học",
         action: "Hành động",
         gender: "Giới tính",
         male: "Nam",
